@@ -4,9 +4,8 @@
 #include <opencv2/core/types.hpp>
 #include <opencv2/core/mat.hpp>
 
-
 // Reads vertices from each expression for each user in the warehouse
-void buildCoreTensor(string& warehousePath, string& outfile, tensor3& coreTensor) {
+void buildRawTensor(string& warehousePath, string& outfile, tensor3& rawTensor) {
     warehousePath += "Tester_";
 
     // Each of the 150 users corresponds to one "shape.bs" file
@@ -23,12 +22,12 @@ void buildCoreTensor(string& warehousePath, string& outfile, tensor3& coreTensor
 
         for (int j = 0; j < 47; ++j)
             for (int k = 0; k < 11510; ++k)
-                fread(&coreTensor(i, j, k), sizeof(Vector3f), 1, fp);
+                fread(&rawTensor(i, j, k), sizeof(Vector3f), 1, fp);
 
         fclose(fp);
     }
 
-    writeTensor(outfile, coreTensor);
+    writeTensor(outfile, rawTensor);
 }
 
 // Saves core tensor to binary file
@@ -39,12 +38,11 @@ void writeTensor(const string& filename, tensor3& tensor) {
         for (int j = 0; j < 47; j++)
             for (int k = 0; k < 11510; k++)
                 file.write(reinterpret_cast<const char*>(&tensor(i, j, k)), sizeof(Vector3f));
-
     file.close();
 }
 
 // Loads tensor from binary file
-void loadCoreTensor(const string& filename, tensor3& tensor) {
+void loadRawTensor(const string& filename, tensor3& tensor) {
     std::ifstream file(filename, std::ifstream::binary);
 
     for (int i = 0; i < 150; i++)
@@ -64,6 +62,46 @@ void displayEntireTensor(tensor3& tensor) {
             }
         }
     }
+}
+
+void loadShapeTensor(string& SHAPE_TENSOR_PATH, tensor3& shapeTensor) {
+    std::ifstream file(SHAPE_TENSOR_PATH, std::ifstream::binary);
+
+    for (int i = 0; i < 150; i++)
+        for (int j = 0; j < 47; j++)
+            for (int k = 0; k < 73; k++)
+                file.read(reinterpret_cast<char *>(&shapeTensor(i, j, k)), sizeof(Vector3f));
+
+    file.close();
+}
+
+void buildShapeTensor(tensor3& rawTensor, string& outfile, tensor3& shapeTensor) {
+    int shapeVerts[] = {179, 214, 323, 379, 510, 755, 765, 766, 767, 1642, 1717, 1933, 2094, 2122, 2336, 3185, 3226, 3239,
+                        3272, 3434, 3441, 3982, 4088, 4213, 4246, 4250, 4267, 4340, 5546, 6074, 6090, 6119, 6139, 6265,
+                        6348, 6350, 6503, 6542, 6826, 6870, 6986, 7122, 7140, 7161, 7165, 7238, 7256, 7281, 7284, 7288,
+                        7292, 7385, 8801, 8802, 8814, 8865, 8948, 8972, 8978, 9053, 9175, 9249, 10297, 10334, 10453,
+                        10575, 10629, 10682, 10684, 10760, 10820, 10844, 10892};
+    int len = sizeof(shapeVerts) / sizeof(*shapeVerts);
+
+    for (int i = 0; i < 150; i++) {
+        for (int j = 0; j < 47; j++) {
+            for (int k = 0; k < len; k++) {
+                shapeTensor(i, j, k) = rawTensor(i, j, k);
+            }
+        }
+    }
+
+    writeShapeTensor(outfile, shapeTensor);
+}
+
+void writeShapeTensor(const string& filename, tensor3& tensor) {
+    std::ofstream file(filename, std::ofstream::binary);
+
+    for (int i = 0; i < 150; i++)
+        for (int j = 0; j < 47; j++)
+            for (int k = 0; k < 73; k++)
+                file.write(reinterpret_cast<const char*>(&tensor(i, j, k)), sizeof(Vector3f));
+    file.close();
 }
 
 
