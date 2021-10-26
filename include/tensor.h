@@ -30,10 +30,15 @@ namespace asu {
 
 typedef Eigen::Tensor<Eigen::Vector3f, 3> tensor3;
 
-void buildCoreTensor(string& warehousePath, string& outfile, tensor3& coreTensor);
+void buildRawTensor(string& warehousePath, string& outfile, tensor3& rawTensor);
 void writeTensor(const string& filename, tensor3& tensor);
-void loadCoreTensor(const string& filename, tensor3& tensor);
-void displayEntireTensor(tensor3& coreTensor);
+void loadRawTensor(const string& filename, tensor3& tensor);
+void displayEntireTensor(tensor3& rawTensor);
+
+void loadShapeTensor(string& SHAPE_TENSOR_PATH, tensor3& shapeTensor);
+void buildShapeTensor(tensor3& rawTensor, string& outfile, tensor3& shapeTensor);
+void writeShapeTensor(const string& filename, tensor3& tensor);
+
 vector<cv::Point2f> readLandmarksFromFile_2(const std::string& path, const cv::Mat& image);
 #endif //DEMO_CORE_TENSOR_H
 

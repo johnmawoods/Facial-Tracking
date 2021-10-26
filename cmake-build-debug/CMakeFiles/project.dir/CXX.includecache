@@ -1759,6 +1759,8 @@ src/SpecialFunctions/arch/GPU/SpecialFunctions.h
 ../3rdparty/eigen/unsupported/Eigen/src/SpecialFunctions/arch/NEON/SpecialFunctions.h
 
 /Volumes/Aatmik SSD/Algoface-Facial-Tracking/include/tensor.h
+utility.h
+/Volumes/Aatmik SSD/Algoface-Facial-Tracking/include/utility.h
 iostream
 -
 vector
@@ -1769,6 +1771,20 @@ Eigen/Core
 -
 opencv2/core/types.hpp
 -
+
+/Volumes/Aatmik SSD/Algoface-Facial-Tracking/include/utility.h
+iostream
+-
+vector
+-
+fstream
+-
+opencv2/highgui/highgui.hpp
+/Volumes/Aatmik SSD/Algoface-Facial-Tracking/include/opencv2/highgui/highgui.hpp
+opencv2/imgproc/imgproc.hpp
+/Volumes/Aatmik SSD/Algoface-Facial-Tracking/include/opencv2/imgproc/imgproc.hpp
+opencv2/core/core.hpp
+/Volumes/Aatmik SSD/Algoface-Facial-Tracking/include/opencv2/core/core.hpp
 
 /Volumes/Aatmik SSD/Algoface-Facial-Tracking/src/main.cpp
 iostream
