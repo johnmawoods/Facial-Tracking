@@ -86,7 +86,7 @@ void buildShapeTensor(tensor3& rawTensor, string& outfile, tensor3& shapeTensor)
     for (int i = 0; i < 150; i++) {
         for (int j = 0; j < 47; j++) {
             for (int k = 0; k < len; k++) {
-                shapeTensor(i, j, k) = rawTensor(i, j, k);
+                shapeTensor(i, j, k) = rawTensor(i, j, shapeVerts[k]);
             }
         }
     }
