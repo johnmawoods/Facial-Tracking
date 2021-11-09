@@ -76,11 +76,11 @@ void loadShapeTensor(string& SHAPE_TENSOR_PATH, tensor3& shapeTensor) {
 }
 
 void buildShapeTensor(tensor3& rawTensor, string& outfile, tensor3& shapeTensor) {
-    int shapeVerts[] = {179, 214, 323, 379, 510, 755, 765, 766, 767, 1642, 1717, 1933, 2094, 2122, 2336, 3185, 3226, 3239,
-                        3272, 3434, 3441, 3982, 4088, 4213, 4246, 4250, 4267, 4340, 5546, 6074, 6090, 6119, 6139, 6265,
-                        6348, 6350, 6503, 6542, 6826, 6870, 6986, 7122, 7140, 7161, 7165, 7238, 7256, 7281, 7284, 7288,
-                        7292, 7385, 8801, 8802, 8814, 8865, 8948, 8972, 8978, 9053, 9175, 9249, 10297, 10334, 10453,
-                        10575, 10629, 10682, 10684, 10760, 10820, 10844, 10892};
+    int shapeVerts[] = {179, 214, 323, 501, 755, 765, 766, 767, 1642, 1717, 1902, 2122, 3185, 3226, 3239, 3272, 3434,
+                        3441, 3812, 3982, 4088, 4213, 4246, 4250, 4267, 4340, 5546, 6074, 6090, 6119, 6139, 6265, 6348,
+                        6350, 6502, 6576, 6703, 6744, 6826, 6870, 6880, 6986, 7079, 7122, 7140, 7161, 7165, 7238, 7256,
+                        7281, 7284, 7288, 7292, 7385, 8801, 8802, 8814, 8865, 8948, 8972, 8978, 9249, 10297, 10334,
+                        10453, 10536, 10629, 10682, 10684, 10760, 10820, 10844, 10892};
     int len = sizeof(shapeVerts) / sizeof(*shapeVerts);
 
     for (int i = 0; i < 150; i++) {
@@ -137,7 +137,7 @@ vector<cv::Point2f> readLandmarksFromFile_2(const std::string& path, const cv::M
     infile.close();
 
     int nPoints = orderedIndices.size();
-    vector<cv::Point2f> lms(nPoints * 2);
+    vector<cv::Point2f> lms(nPoints);
     for (int i = 0; i < nPoints; i++) {
         lms[i].x = origLms[orderedIndices[i]];
         lms[i].y = origLms[orderedIndices[i] + nOrigPoints];
