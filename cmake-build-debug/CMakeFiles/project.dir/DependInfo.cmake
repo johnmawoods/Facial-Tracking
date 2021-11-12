@@ -4,10 +4,10 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/Volumes/Aatmik SSD/Algoface-Facial-Tracking/src/fitting.cpp" "/Volumes/Aatmik SSD/Algoface-Facial-Tracking/cmake-build-debug/CMakeFiles/project.dir/src/fitting.cpp.o"
-  "/Volumes/Aatmik SSD/Algoface-Facial-Tracking/src/main.cpp" "/Volumes/Aatmik SSD/Algoface-Facial-Tracking/cmake-build-debug/CMakeFiles/project.dir/src/main.cpp.o"
-  "/Volumes/Aatmik SSD/Algoface-Facial-Tracking/src/tensor.cpp" "/Volumes/Aatmik SSD/Algoface-Facial-Tracking/cmake-build-debug/CMakeFiles/project.dir/src/tensor.cpp.o"
-  "/Volumes/Aatmik SSD/Algoface-Facial-Tracking/src/utility.cpp" "/Volumes/Aatmik SSD/Algoface-Facial-Tracking/cmake-build-debug/CMakeFiles/project.dir/src/utility.cpp.o"
+  "/Volumes/Aatmik SSD/Facial-Tracking/src/fitting.cpp" "/Volumes/Aatmik SSD/Facial-Tracking/cmake-build-debug/CMakeFiles/project.dir/src/fitting.cpp.o"
+  "/Volumes/Aatmik SSD/Facial-Tracking/src/main.cpp" "/Volumes/Aatmik SSD/Facial-Tracking/cmake-build-debug/CMakeFiles/project.dir/src/main.cpp.o"
+  "/Volumes/Aatmik SSD/Facial-Tracking/src/tensor.cpp" "/Volumes/Aatmik SSD/Facial-Tracking/cmake-build-debug/CMakeFiles/project.dir/src/tensor.cpp.o"
+  "/Volumes/Aatmik SSD/Facial-Tracking/src/utility.cpp" "/Volumes/Aatmik SSD/Facial-Tracking/cmake-build-debug/CMakeFiles/project.dir/src/utility.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "AppleClang")
 

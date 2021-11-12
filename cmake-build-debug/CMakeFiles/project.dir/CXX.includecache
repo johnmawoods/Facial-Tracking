@@ -1758,9 +1758,9 @@ src/SpecialFunctions/arch/GPU/SpecialFunctions.h
 
 ../3rdparty/eigen/unsupported/Eigen/src/SpecialFunctions/arch/NEON/SpecialFunctions.h
 
-/Volumes/Aatmik SSD/Algoface-Facial-Tracking/include/tensor.h
+/Volumes/Aatmik SSD/Facial-Tracking/include/tensor.h
 utility.h
-/Volumes/Aatmik SSD/Algoface-Facial-Tracking/include/utility.h
+/Volumes/Aatmik SSD/Facial-Tracking/include/utility.h
 iostream
 -
 vector
@@ -1772,7 +1772,7 @@ Eigen/Core
 opencv2/core/types.hpp
 -
 
-/Volumes/Aatmik SSD/Algoface-Facial-Tracking/include/utility.h
+/Volumes/Aatmik SSD/Facial-Tracking/include/utility.h
 iostream
 -
 vector
@@ -1780,19 +1780,19 @@ vector
 fstream
 -
 opencv2/highgui/highgui.hpp
-/Volumes/Aatmik SSD/Algoface-Facial-Tracking/include/opencv2/highgui/highgui.hpp
+/Volumes/Aatmik SSD/Facial-Tracking/include/opencv2/highgui/highgui.hpp
 opencv2/imgproc/imgproc.hpp
-/Volumes/Aatmik SSD/Algoface-Facial-Tracking/include/opencv2/imgproc/imgproc.hpp
+/Volumes/Aatmik SSD/Facial-Tracking/include/opencv2/imgproc/imgproc.hpp
 opencv2/core/core.hpp
-/Volumes/Aatmik SSD/Algoface-Facial-Tracking/include/opencv2/core/core.hpp
+/Volumes/Aatmik SSD/Facial-Tracking/include/opencv2/core/core.hpp
 
-/Volumes/Aatmik SSD/Algoface-Facial-Tracking/src/main.cpp
+/Volumes/Aatmik SSD/Facial-Tracking/src/main.cpp
 iostream
 -
 filesystem
 -
 ../include/tensor.h
-/Volumes/Aatmik SSD/Algoface-Facial-Tracking/include/tensor.h
+/Volumes/Aatmik SSD/Facial-Tracking/include/tensor.h
 Eigen/Core
 -
 Eigen/Dense
@@ -1802,25 +1802,13 @@ unsupported/Eigen/CXX11/Tensor
 fstream
 -
 opencv2/highgui/highgui.hpp
-/Volumes/Aatmik SSD/Algoface-Facial-Tracking/src/opencv2/highgui/highgui.hpp
+/Volumes/Aatmik SSD/Facial-Tracking/src/opencv2/highgui/highgui.hpp
 opencv2/imgproc/imgproc.hpp
-/Volumes/Aatmik SSD/Algoface-Facial-Tracking/src/opencv2/imgproc/imgproc.hpp
+/Volumes/Aatmik SSD/Facial-Tracking/src/opencv2/imgproc/imgproc.hpp
 opencv2/calib3d/calib3d.hpp
-/Volumes/Aatmik SSD/Algoface-Facial-Tracking/src/opencv2/calib3d/calib3d.hpp
+/Volumes/Aatmik SSD/Facial-Tracking/src/opencv2/calib3d/calib3d.hpp
 opencv2/core/core.hpp
-/Volumes/Aatmik SSD/Algoface-Facial-Tracking/src/opencv2/core/core.hpp
-
-/Volumes/Aatmik SSD/Algoface-Facial-Tracking/src/tensor.cpp
-../include/tensor.h
-/Volumes/Aatmik SSD/Algoface-Facial-Tracking/include/tensor.h
-iostream
--
-fstream
--
-opencv2/core/types.hpp
--
-opencv2/core/mat.hpp
--
+/Volumes/Aatmik SSD/Facial-Tracking/src/opencv2/core/core.hpp
 
 /usr/local/Cellar/opencv/4.5.3_2/include/opencv4/opencv2/calib3d.hpp
 opencv2/core.hpp

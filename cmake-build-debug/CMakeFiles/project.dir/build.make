@@ -43,10 +43,10 @@ RM = /Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = "/Volumes/Aatmik SSD/Algoface-Facial-Tracking"
+CMAKE_SOURCE_DIR = "/Volumes/Aatmik SSD/Facial-Tracking"
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = "/Volumes/Aatmik SSD/Algoface-Facial-Tracking/cmake-build-debug"
+CMAKE_BINARY_DIR = "/Volumes/Aatmik SSD/Facial-Tracking/cmake-build-debug"
 
 # Include any dependencies generated for this target.
 include CMakeFiles/project.dir/depend.make
@@ -59,55 +59,55 @@ include CMakeFiles/project.dir/flags.make
 
 CMakeFiles/project.dir/src/fitting.cpp.o: CMakeFiles/project.dir/flags.make
 CMakeFiles/project.dir/src/fitting.cpp.o: ../src/fitting.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/Volumes/Aatmik SSD/Algoface-Facial-Tracking/cmake-build-debug/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/project.dir/src/fitting.cpp.o"
-	/usr/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/project.dir/src/fitting.cpp.o -c "/Volumes/Aatmik SSD/Algoface-Facial-Tracking/src/fitting.cpp"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/Volumes/Aatmik SSD/Facial-Tracking/cmake-build-debug/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/project.dir/src/fitting.cpp.o"
+	/usr/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/project.dir/src/fitting.cpp.o -c "/Volumes/Aatmik SSD/Facial-Tracking/src/fitting.cpp"
 
 CMakeFiles/project.dir/src/fitting.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/project.dir/src/fitting.cpp.i"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/Volumes/Aatmik SSD/Algoface-Facial-Tracking/src/fitting.cpp" > CMakeFiles/project.dir/src/fitting.cpp.i
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/Volumes/Aatmik SSD/Facial-Tracking/src/fitting.cpp" > CMakeFiles/project.dir/src/fitting.cpp.i
 
 CMakeFiles/project.dir/src/fitting.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/project.dir/src/fitting.cpp.s"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Volumes/Aatmik SSD/Algoface-Facial-Tracking/src/fitting.cpp" -o CMakeFiles/project.dir/src/fitting.cpp.s
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Volumes/Aatmik SSD/Facial-Tracking/src/fitting.cpp" -o CMakeFiles/project.dir/src/fitting.cpp.s
 
 CMakeFiles/project.dir/src/main.cpp.o: CMakeFiles/project.dir/flags.make
 CMakeFiles/project.dir/src/main.cpp.o: ../src/main.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/Volumes/Aatmik SSD/Algoface-Facial-Tracking/cmake-build-debug/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/project.dir/src/main.cpp.o"
-	/usr/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/project.dir/src/main.cpp.o -c "/Volumes/Aatmik SSD/Algoface-Facial-Tracking/src/main.cpp"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/Volumes/Aatmik SSD/Facial-Tracking/cmake-build-debug/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/project.dir/src/main.cpp.o"
+	/usr/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/project.dir/src/main.cpp.o -c "/Volumes/Aatmik SSD/Facial-Tracking/src/main.cpp"
 
 CMakeFiles/project.dir/src/main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/project.dir/src/main.cpp.i"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/Volumes/Aatmik SSD/Algoface-Facial-Tracking/src/main.cpp" > CMakeFiles/project.dir/src/main.cpp.i
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/Volumes/Aatmik SSD/Facial-Tracking/src/main.cpp" > CMakeFiles/project.dir/src/main.cpp.i
 
 CMakeFiles/project.dir/src/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/project.dir/src/main.cpp.s"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Volumes/Aatmik SSD/Algoface-Facial-Tracking/src/main.cpp" -o CMakeFiles/project.dir/src/main.cpp.s
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Volumes/Aatmik SSD/Facial-Tracking/src/main.cpp" -o CMakeFiles/project.dir/src/main.cpp.s
 
 CMakeFiles/project.dir/src/tensor.cpp.o: CMakeFiles/project.dir/flags.make
 CMakeFiles/project.dir/src/tensor.cpp.o: ../src/tensor.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/Volumes/Aatmik SSD/Algoface-Facial-Tracking/cmake-build-debug/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/project.dir/src/tensor.cpp.o"
-	/usr/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/project.dir/src/tensor.cpp.o -c "/Volumes/Aatmik SSD/Algoface-Facial-Tracking/src/tensor.cpp"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/Volumes/Aatmik SSD/Facial-Tracking/cmake-build-debug/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/project.dir/src/tensor.cpp.o"
+	/usr/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/project.dir/src/tensor.cpp.o -c "/Volumes/Aatmik SSD/Facial-Tracking/src/tensor.cpp"
 
 CMakeFiles/project.dir/src/tensor.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/project.dir/src/tensor.cpp.i"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/Volumes/Aatmik SSD/Algoface-Facial-Tracking/src/tensor.cpp" > CMakeFiles/project.dir/src/tensor.cpp.i
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/Volumes/Aatmik SSD/Facial-Tracking/src/tensor.cpp" > CMakeFiles/project.dir/src/tensor.cpp.i
 
 CMakeFiles/project.dir/src/tensor.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/project.dir/src/tensor.cpp.s"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Volumes/Aatmik SSD/Algoface-Facial-Tracking/src/tensor.cpp" -o CMakeFiles/project.dir/src/tensor.cpp.s
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Volumes/Aatmik SSD/Facial-Tracking/src/tensor.cpp" -o CMakeFiles/project.dir/src/tensor.cpp.s
 
 CMakeFiles/project.dir/src/utility.cpp.o: CMakeFiles/project.dir/flags.make
 CMakeFiles/project.dir/src/utility.cpp.o: ../src/utility.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/Volumes/Aatmik SSD/Algoface-Facial-Tracking/cmake-build-debug/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/project.dir/src/utility.cpp.o"
-	/usr/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/project.dir/src/utility.cpp.o -c "/Volumes/Aatmik SSD/Algoface-Facial-Tracking/src/utility.cpp"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/Volumes/Aatmik SSD/Facial-Tracking/cmake-build-debug/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/project.dir/src/utility.cpp.o"
+	/usr/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/project.dir/src/utility.cpp.o -c "/Volumes/Aatmik SSD/Facial-Tracking/src/utility.cpp"
 
 CMakeFiles/project.dir/src/utility.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/project.dir/src/utility.cpp.i"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/Volumes/Aatmik SSD/Algoface-Facial-Tracking/src/utility.cpp" > CMakeFiles/project.dir/src/utility.cpp.i
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/Volumes/Aatmik SSD/Facial-Tracking/src/utility.cpp" > CMakeFiles/project.dir/src/utility.cpp.i
 
 CMakeFiles/project.dir/src/utility.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/project.dir/src/utility.cpp.s"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Volumes/Aatmik SSD/Algoface-Facial-Tracking/src/utility.cpp" -o CMakeFiles/project.dir/src/utility.cpp.s
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Volumes/Aatmik SSD/Facial-Tracking/src/utility.cpp" -o CMakeFiles/project.dir/src/utility.cpp.s
 
 # Object files for target project
 project_OBJECTS = \
@@ -183,9 +183,9 @@ project: /usr/local/lib/libopencv_photo.4.5.3.dylib
 project: /usr/local/lib/libopencv_imgproc.4.5.3.dylib
 project: /usr/local/lib/libopencv_core.4.5.3.dylib
 project: CMakeFiles/project.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir="/Volumes/Aatmik SSD/Algoface-Facial-Tracking/cmake-build-debug/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX executable project"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir="/Volumes/Aatmik SSD/Facial-Tracking/cmake-build-debug/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX executable project"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/project.dir/link.txt --verbose=$(VERBOSE)
-	/Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -E copy_directory /Volumes/Aatmik\ SSD/Algoface-Facial-Tracking/bin /Volumes/Aatmik\ SSD/Algoface-Facial-Tracking/cmake-build-debug
+	/Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -E copy_directory /Volumes/Aatmik\ SSD/Facial-Tracking/bin /Volumes/Aatmik\ SSD/Facial-Tracking/cmake-build-debug
 
 # Rule to build all files generated by this target.
 CMakeFiles/project.dir/build: project
@@ -197,6 +197,6 @@ CMakeFiles/project.dir/clean:
 .PHONY : CMakeFiles/project.dir/clean
 
 CMakeFiles/project.dir/depend:
-	cd "/Volumes/Aatmik SSD/Algoface-Facial-Tracking/cmake-build-debug" && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" "/Volumes/Aatmik SSD/Algoface-Facial-Tracking" "/Volumes/Aatmik SSD/Algoface-Facial-Tracking" "/Volumes/Aatmik SSD/Algoface-Facial-Tracking/cmake-build-debug" "/Volumes/Aatmik SSD/Algoface-Facial-Tracking/cmake-build-debug" "/Volumes/Aatmik SSD/Algoface-Facial-Tracking/cmake-build-debug/CMakeFiles/project.dir/DependInfo.cmake" --color=$(COLOR)
+	cd "/Volumes/Aatmik SSD/Facial-Tracking/cmake-build-debug" && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" "/Volumes/Aatmik SSD/Facial-Tracking" "/Volumes/Aatmik SSD/Facial-Tracking" "/Volumes/Aatmik SSD/Facial-Tracking/cmake-build-debug" "/Volumes/Aatmik SSD/Facial-Tracking/cmake-build-debug" "/Volumes/Aatmik SSD/Facial-Tracking/cmake-build-debug/CMakeFiles/project.dir/DependInfo.cmake" --color=$(COLOR)
 .PHONY : CMakeFiles/project.dir/depend
 

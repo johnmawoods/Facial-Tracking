@@ -4,7 +4,7 @@
 CMakeFiles/project.dir/src/fitting.cpp.o
  ../include/fitting.h
  ../include/utility.h
- /Volumes/Aatmik SSD/Algoface-Facial-Tracking/src/fitting.cpp
+ /Volumes/Aatmik SSD/Facial-Tracking/src/fitting.cpp
  /usr/local/Cellar/opencv/4.5.3_2/include/opencv4/opencv2/core.hpp
  /usr/local/Cellar/opencv/4.5.3_2/include/opencv4/opencv2/core/base.hpp
  /usr/local/Cellar/opencv/4.5.3_2/include/opencv4/opencv2/core/bufferpool.hpp
@@ -388,9 +388,9 @@ CMakeFiles/project.dir/src/main.cpp.o
  ../3rdparty/eigen/unsupported/Eigen/src/SpecialFunctions/arch/GPU/SpecialFunctions.h
  ../3rdparty/eigen/unsupported/Eigen/src/SpecialFunctions/arch/NEON/BesselFunctions.h
  ../3rdparty/eigen/unsupported/Eigen/src/SpecialFunctions/arch/NEON/SpecialFunctions.h
- /Volumes/Aatmik SSD/Algoface-Facial-Tracking/include/tensor.h
- /Volumes/Aatmik SSD/Algoface-Facial-Tracking/include/utility.h
- /Volumes/Aatmik SSD/Algoface-Facial-Tracking/src/main.cpp
+ /Volumes/Aatmik SSD/Facial-Tracking/include/tensor.h
+ /Volumes/Aatmik SSD/Facial-Tracking/include/utility.h
+ /Volumes/Aatmik SSD/Facial-Tracking/src/main.cpp
  /usr/local/Cellar/opencv/4.5.3_2/include/opencv4/opencv2/calib3d.hpp
  /usr/local/Cellar/opencv/4.5.3_2/include/opencv4/opencv2/calib3d/calib3d.hpp
  /usr/local/Cellar/opencv/4.5.3_2/include/opencv4/opencv2/core.hpp
@@ -714,9 +714,9 @@ CMakeFiles/project.dir/src/tensor.cpp.o
  ../3rdparty/eigen/unsupported/Eigen/src/SpecialFunctions/arch/GPU/SpecialFunctions.h
  ../3rdparty/eigen/unsupported/Eigen/src/SpecialFunctions/arch/NEON/BesselFunctions.h
  ../3rdparty/eigen/unsupported/Eigen/src/SpecialFunctions/arch/NEON/SpecialFunctions.h
- /Volumes/Aatmik SSD/Algoface-Facial-Tracking/include/tensor.h
- /Volumes/Aatmik SSD/Algoface-Facial-Tracking/include/utility.h
- /Volumes/Aatmik SSD/Algoface-Facial-Tracking/src/tensor.cpp
+ /Volumes/Aatmik SSD/Facial-Tracking/include/tensor.h
+ /Volumes/Aatmik SSD/Facial-Tracking/include/utility.h
+ /Volumes/Aatmik SSD/Facial-Tracking/src/tensor.cpp
  /usr/local/Cellar/opencv/4.5.3_2/include/opencv4/opencv2/core.hpp
  /usr/local/Cellar/opencv/4.5.3_2/include/opencv4/opencv2/core/base.hpp
  /usr/local/Cellar/opencv/4.5.3_2/include/opencv4/opencv2/core/bufferpool.hpp
@@ -757,7 +757,7 @@ CMakeFiles/project.dir/src/tensor.cpp.o
  /usr/local/Cellar/opencv/4.5.3_2/include/opencv4/opencv2/videoio.hpp
 CMakeFiles/project.dir/src/utility.cpp.o
  ../include/utility.h
- /Volumes/Aatmik SSD/Algoface-Facial-Tracking/src/utility.cpp
+ /Volumes/Aatmik SSD/Facial-Tracking/src/utility.cpp
  /usr/local/Cellar/opencv/4.5.3_2/include/opencv4/opencv2/core.hpp
  /usr/local/Cellar/opencv/4.5.3_2/include/opencv4/opencv2/core/base.hpp
  /usr/local/Cellar/opencv/4.5.3_2/include/opencv4/opencv2/core/bufferpool.hpp

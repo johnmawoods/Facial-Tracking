@@ -76,16 +76,11 @@ void loadShapeTensor(string& SHAPE_TENSOR_PATH, tensor3& shapeTensor) {
 }
 
 void buildShapeTensor(tensor3& rawTensor, string& outfile, tensor3& shapeTensor) {
-    int shapeVerts[] = {179, 214, 323, 501, 755, 765, 766, 767, 1642, 1717, 1902, 2122, 3185, 3226, 3239, 3272, 3434,
-                        3441, 3812, 3982, 4088, 4213, 4246, 4250, 4267, 4340, 5546, 6074, 6090, 6119, 6139, 6265, 6348,
-                        6350, 6502, 6576, 6703, 6744, 6826, 6870, 6880, 6986, 7079, 7122, 7140, 7161, 7165, 7238, 7256,
-                        7281, 7284, 7288, 7292, 7385, 8801, 8802, 8814, 8865, 8948, 8972, 8978, 9249, 10297, 10334,
-                        10453, 10536, 10629, 10682, 10684, 10760, 10820, 10844, 10892};
-    int len = sizeof(shapeVerts) / sizeof(*shapeVerts);
+    int shapeVerts[] = {10739, 3988, 3918, 3860, 10539, 489, 399, 3607, 9079, 9104, 1926, 6745, 2094, 2071, 9248, 9246, 7161, 7169, 1987, 7044, 6867, 697, 712, 10846, 3982, 10718, 4080, 3937, 192, 743, 6062, 10683, 3257, 4337, 10500, 4392, 8859, 4352, 10285, 10820, 3272, 750, 6057, 2103, 9296, 9224, 7276, 10407, 2176, 280, 9446, 7245, 7224, 4225, 9039, 10459, 3525, 6274, 6415, 9032, 6465, 6313, 7122, 8972, 3264, 3695, 3628, 1875, 8864, 6058, 1627, 6090, 6083};
 
     for (int i = 0; i < 150; i++) {
         for (int j = 0; j < 47; j++) {
-            for (int k = 0; k < len; k++) {
+            for (int k = 0; k < 73; k++) {
                 shapeTensor(i, j, k) = rawTensor(i, j, shapeVerts[k]);
             }
         }
@@ -106,7 +101,6 @@ void writeShapeTensor(const string& filename, tensor3& tensor) {
 
 
 vector<cv::Point2f> readLandmarksFromFile_2(const std::string& path, const cv::Mat& image) {
-
     vector<int> orderedIndices = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,  //face contour
                                    21, 22, 23, 24, 25, 26,                            //left eyebrow
                                    18, 17, 16, 15, 20, 19,                            //right eyebrow
@@ -120,7 +114,7 @@ vector<cv::Point2f> readLandmarksFromFile_2(const std::string& path, const cv::M
 
     std::ifstream infile(path);
     if (infile.fail()) {
-        std::cerr << "ERROR: unable to open the landmarks file, refer to file " << __FILE__ << ", line " << __LINE__ << endl;
+        std::cerr << "ERROR: unable to open the ladndmarks file, refer to file " << __FILE__ << ", line " << __LINE__ << endl;
         exit(-1);
     }
     std::string hay;

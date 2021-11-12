@@ -48,25 +48,24 @@ int main() {
         objectVec[i] = cv_vec;
     }
 
-    // Image vector contains 2d landmark positions
-    string img_path = WAREHOUSE_PATH + "Tester_1/TrainingPose/pose_0.png";
-    string land_path = WAREHOUSE_PATH + "Tester_1/TrainingPose/pose_0.land";
-    cv::Mat image = cv::imread(img_path, 1);
-    std::vector<cv::Point2f> lmsVec = readLandmarksFromFile_2(land_path, image);
 
-    double fx = 640, fy = 640, cx = 320, cy = 240;
-    cv::Mat cameraMatrix = (cv::Mat_<double>(3, 3) << fx, 0, cx, 0, fy, cy, 0, 0, 1);
-    // Assuming no distortion
-    cv::Mat distCoeffs(4, 1, CV_64F);
-    distCoeffs.at<double>(0) = 0;
-    distCoeffs.at<double>(1) = 0;
-    distCoeffs.at<double>(2) = 0;
-    distCoeffs.at<double>(3) = 0;
+    // Image vector contains 2d landmark positions
+    string img_path = WAREHOUSE_PATH + "Tester_103/TrainingPose/pose_1.png";
+    string land_path = WAREHOUSE_PATH + "Tester_103/TrainingPose/pose_1.land";
+    cv::Mat image = cv::imread(img_path, 1);
+//    asu::Utility util;
+    vector<cv::Point2f> lmsVec = readLandmarksFromFile_2(land_path, image);
+
+    double f = image.cols;               // ideal camera where fx ~ fy
+    double cx = image.cols / 2.0;
+    double cy = image.rows / 2.0;
+
+    cv::Mat cameraMatrix = (cv::Mat_<double>(3, 3) << f, 0, cx, 0, f, cy, 0, 0, 1);
 
     // Get rotation and translation parameters
     cv::Mat rvec(3, 1, CV_64F);
     cv::Mat tvec(3, 1, CV_64F);
-    cv::solvePnP(objectVec, lmsVec, cameraMatrix, distCoeffs, rvec, tvec);
+    cv::solvePnP(objectVec, lmsVec, cameraMatrix, cv::Mat(), rvec, tvec);
 
     // Convert Euler angles to rotation matrix
     cv::Mat R;
@@ -74,11 +73,13 @@ int main() {
 
     // Combine 3x3 rotation and 3x1 translation into 4x4 transformation matrix
     cv::Mat T = cv::Mat::eye(4, 4, CV_64F);
-    T(cv::Range(0,3), cv::Range(0,3)) = R * 1;
-    T(cv::Range(0,3), cv::Range(3,4)) = tvec * 1;
+    T(cv::Range(0, 3), cv::Range(0, 3)) = R * 1;
+    T(cv::Range(0, 3), cv::Range(3, 4)) = tvec * 1;
+    cout << tvec << endl << rvec << endl;
+
     // Transform object
     std::vector<cv::Mat> cameraVec;
-    for (auto& vec: objectVec) {
+    for (auto& vec : objectVec) {
         double data[4] = { vec.x, vec.y, vec.z, 1 };
         cv::Mat vector4d = cv::Mat(4, 1, CV_64F, data);
         cv::Mat result = T * vector4d;
@@ -87,28 +88,36 @@ int main() {
 
     // Project points onto image
     std::vector<cv::Point2f> imageVec;
-    for (auto& vec: cameraVec) {
+    for (auto& vec : cameraVec) {
         cv::Point2f result;
-        result.x = fx * vec.at<double>(0, 0) / vec.at<double>(2, 0) + cx;
-        result.y = fx * vec.at<double>(1, 0) / vec.at<double>(2, 0) + cy;
+        result.x = f * vec.at<double>(0, 0) / vec.at<double>(2, 0) + cx;
+        result.y = f * vec.at<double>(1, 0) / vec.at<double>(2, 0) + cy;
+
         imageVec.push_back(result);
     }
-//    cv::projectPoints(objectVec, rvec, tvec, cameraMatrix, distCoeffs, imageVec);
+    cout << T << endl << cameraVec[0] << endl;
+    cv::projectPoints(objectVec, rvec, tvec, cameraMatrix, cv::Mat(), imageVec);
 
 
-    cv::Mat visualImage = image.clone();       // deep copy of the image to avoid manipulating the image itself
-    //cv::Mat visualImage = image;             // shallow copy
-    double sc = 1;
+    cv::Mat visualImage = image.clone();
+    double sc = 3;
     cv::resize(visualImage, visualImage, cv::Size(visualImage.cols * sc, visualImage.rows * sc));
     for (int i = 0; i < imageVec.size(); i++) {
-        cv::circle(visualImage, imageVec[i] * sc, 1, cv::Scalar(0, 255, 0), 1);
-        cv::putText(visualImage, std::to_string(i), imageVec[i] * sc, 3, 0.4, cv::Scalar::all(255), 1);
+        //cv::circle(visualImage, imageVec[i] * sc, 1, cv::Scalar(0, 255, 0), 1);
+//        cv::putText(visualImage, std::to_string(i), lmsVec[i] * sc, 3, 0.4, cv::Scalar::all(255), 1);
+
+        cv::circle(visualImage, imageVec[i] * sc, 1, cv::Scalar(0, 0, 255), sc);             // 3d projections (red)
+//        cv::circle(visualImage, lmsVec[i] * sc, 1, cv::Scalar(0, 255, 0), sc);               // 2d landmarks   (green)
+
+//        cv::putText(visualImage, std::to_string(i), lmsVec[i] * sc, 3, 0.4, cv::Scalar::all(255), 1);
+
     }
     cv::imshow("visualImage", visualImage);
     int key = cv::waitKey(0) % 256;
     if (key == 27)                        // Esc button is pressed
         exit(1);
 
+    return 0;
 
 
 }
