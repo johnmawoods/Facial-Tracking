@@ -13,13 +13,21 @@ void buildRawTensor(string& warehousePath, string& outfile, tensor3& rawTensor) 
     for (int i = 0; i < 150; i++) {
         string fileName = warehousePath + std::to_string(i + 1) + "/Blendshape/shape.bs";
 
+        //string fileName = "D:/Desktop/2021FallSchool/CSE423/Github/Facial-Tracking/data/FaceWarehouse/Tester_" + std::to_string(i+1) + "/Blendshape/shape.bs";
+        cout << "open file " << fileName << endl;
+        
         FILE* fp;
-        fp = fopen(fileName.c_str(), "rb");
 
+        //cout << fileName << endl;
+        fp = fopen(fileName.c_str(), "rb");
         int nShapes = 0, nVerts = 0, nFaces = 0;
-        fread( &nShapes, sizeof(int), 1, fp );	  // nShape = 46
+        fread(&nShapes, sizeof(int), 1, fp);	  // nShape = 46
+        //cout << nShapes << endl;
         fread( &nVerts, sizeof(int), 1, fp );	  // nVerts = 11510
+        //cout << nVerts << endl;
         fread( &nFaces, sizeof(int), 1, fp );	  // nFaces = 11540
+        //cout << nFaces << endl;
+
 
         for (int j = 0; j < 47; ++j)
             for (int k = 0; k < 11510; ++k)

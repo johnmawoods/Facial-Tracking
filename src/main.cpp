@@ -6,44 +6,57 @@
 #include <Eigen/Dense>
 #include <unsupported/Eigen/CXX11/Tensor>
 #include <fstream>
+#include <vector>
 
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/core/core.hpp"
 
-string WAREHOUSE_PATH = "data/FaceWarehouse/";
-string RAW_TENSOR_PATH = "data/raw_tensor.bin";
-string SHAPE_TENSOR_PATH = "data/shape_tensor.bin";
+string WAREHOUSE_PATH = "D:/Desktop/2021FallSchool/CSE423/Github/Facial-Tracking/data/FaceWarehouse/";
+string RAW_TENSOR_PATH = "D:/Desktop/2021FallSchool/CSE423/Github/Facial-Tracking/data/raw_tensor.bin";
+string SHAPE_TENSOR_PATH = "D:/Desktop/2021FallSchool/CSE423/Github/Facial-Tracking/data/shape_tensor.bin";
+
 
 int main() {
     // Raw tensor: 150 users X 47 expressions X 11510 vertices
     tensor3 rawTensor(150, 47, 11510);
-    tensor3 shapeTensor(150, 47, 73);
+    cout << "rawTensor template created" << endl;
     
+    tensor3 shapeTensor(150, 47, 73);
+    cout << "shapeTensor template created" << endl;
+    
+    cout << "checkForTensors" << endl;
     // If raw tensor file does not exist, build it from face warehouse
     if (std::filesystem::exists(RAW_TENSOR_PATH)) {
+        cout << "raw tensor exists" << endl;
         loadRawTensor(RAW_TENSOR_PATH, rawTensor);
+        cout << "raw tensor loaded" << endl;
     }
     else {
+        cout << "raw tensor does not exist" << endl;
         buildRawTensor(WAREHOUSE_PATH, RAW_TENSOR_PATH, rawTensor);
-    }
-
-    // Load or build shape tensor
-    if (std::filesystem::exists(SHAPE_TENSOR_PATH)) {
-        loadShapeTensor(SHAPE_TENSOR_PATH, shapeTensor);
-    }
-    else {
-        buildShapeTensor(rawTensor, SHAPE_TENSOR_PATH, shapeTensor);
+        cout << "raw tensor built" << endl;
     }
     
-    std::ofstream file ("test.obj");
+    // Load or build shape tensor
+    if (std::filesystem::exists(SHAPE_TENSOR_PATH)) {
+        cout << "shape tensor exists" << endl;
+        loadShapeTensor(SHAPE_TENSOR_PATH, shapeTensor);
+        cout << "shape tensor loaded" << endl;
+    }
+    else {
+        cout << "shape tensor does not exist" << endl;
+        buildShapeTensor(rawTensor, SHAPE_TENSOR_PATH, shapeTensor);
+        cout << "shape tensor built" << endl;
+    }
+    cout << "create test.obj" << endl;
+    std::ofstream file ("D:/Desktop/2021FallSchool/CSE423/Github/Facial-Tracking/data/test.obj");
     for (int k = 0; k < 73; k++) {
         Eigen::Vector3f v = shapeTensor(0, 0, k);
         file << "v " << v.x() << " " << v.y() << " " << v.z() << "\n";
     }
     file.close();
     
-    cout << "hello" << endl;
 
     /*
     std::string img_path = WAREHOUSE_PATH + "Tester_103/TrainingPose/pose_1.png";
