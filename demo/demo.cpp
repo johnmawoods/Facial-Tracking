@@ -109,7 +109,7 @@ int main() {
 
 
 
-	std::string path = "../data/FaceWarehouse/";
+	std::string path = "../data/";
 
 	for (fs::directory_iterator topIter(path); topIter != fs::directory_iterator(); topIter++) {
 
