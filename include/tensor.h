@@ -41,5 +41,6 @@ void buildShapeTensor(tensor3& rawTensor, string& outfile, tensor3& shapeTensor)
 void writeShapeTensor(const string& filename, tensor3& tensor);
 
 vector<cv::Point2f> readLandmarksFromFile_2(const std::string& path, const cv::Mat& image);
+
 #endif //DEMO_CORE_TENSOR_H
 
