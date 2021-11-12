@@ -1,2 +1,3 @@
 build/*
 data/*
+!data/lm_vert_internal_73.txt
