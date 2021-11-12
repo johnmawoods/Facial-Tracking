@@ -114,6 +114,27 @@ vector<easy3d::vec3> readFace3DFromObj(std::string path) {
 	return faceVerts;
 }
 
+vector<int> readVertexIdFromFile(std::string path) {
+
+	std::ifstream infile(path);
+	if (infile.fail()) {
+		std::cerr << "ERROR: couldn't open the landmark vertex file " << endl;
+		exit(-1);
+	}
+	std::string temp;
+	std::getline(infile, temp);
+	int numLms = std::stoi(temp);
+	vector<int> vk(numLms);
+	for (int i = 0; i < numLms; i++) {
+		std::getline(infile, temp, ',');
+		vk[i] = std::stoi(temp);
+		std::getline(infile, temp);
+	}
+	infile.close();
+
+	return vk;
+}
+
 
 int main() {
 
@@ -125,11 +146,17 @@ int main() {
 
 	vector<easy3d::vec3> faceVerts = readFace3DFromObj("../data/Tester_103/Blendshape/shape_22.obj");
 
-	vector<int> vk = { 179, 214, 323, 501, 755, 765, 766, 767, 1642, 1717, 1902, 2122, 3185, 3226, 3239, 3272, 3434,
-						3441, 3812, 3982, 4088, 4213, 4246, 4250, 4267, 4340, 5546, 6074, 6090, 6119, 6139, 6265, 6348,
-						6350, 6502, 6576, 6703, 6744, 6826, 6870, 6880, 6986, 7079, 7122, 7140, 7161, 7165, 7238, 7256,
-						7281, 7284, 7288, 7292, 7385, 8801, 8802, 8814, 8865, 8948, 8972, 8978, 9249, 10297, 10334,
-						10453, 10536, 10629, 10682, 10684, 10760, 10820, 10844, 10892 };
+	//vector<int> vk = { 179, 214, 323, 501, 755, 765, 766, 767, 1642, 1717, 1902, 2122, 3185, 3226, 3239, 3272, 3434,
+	//					3441, 3812, 3982, 4088, 4213, 4246, 4250, 4267, 4340, 5546, 6074, 6090, 6119, 6139, 6265, 6348,
+	//					6350, 6502, 6576, 6703, 6744, 6826, 6870, 6880, 6986, 7079, 7122, 7140, 7161, 7165, 7238, 7256,
+	//					7281, 7284, 7288, 7292, 7385, 8801, 8802, 8814, 8865, 8948, 8972, 8978, 9249, 10297, 10334,
+	//					10453, 10536, 10629, 10682, 10684, 10760, 10820, 10844, 10892 };
+
+	vector<int> all3dVertices = readVertexIdFromFile("../data/lm_vert_internal_73.txt");   // in the same order as landmarks
+	vector<int> poseIndices = { 27, 31, 35, 39, 54, 55, 61 };
+	vector<int> vk(poseIndices.size());
+	for (int i = 0; i < vk.size(); i++)
+		vk[i] = all3dVertices[poseIndices[i]];
 
 	vector<easy3d::vec3> lmVerts(vk.size());
 	for (int i = 0; i < vk.size(); i++)
