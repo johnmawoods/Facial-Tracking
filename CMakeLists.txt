@@ -24,29 +24,41 @@ include_directories(
 	${ASU_INCLUDE_DIRS}	
 )
 
-#******************* executables 
-file(GLOB HDR "${CMAKE_SOURCE_DIR}/include/*.h")
-file(GLOB SRC "${CMAKE_SOURCE_DIR}/src/*.cpp")
+#******************* executables and linking
 
-add_executable(demo
-	${HDR}
-	${SRC}
-	${CMAKE_SOURCE_DIR}/example/easy3d_demo.cpp
-)
-
-#******************* linking
-set_target_properties(demo PROPERTIES CXX_STANDARD 17)        # for C++17
 
 set(EASY3D_LIBRARIES easy3d::core easy3d::renderer easy3d::viewer easy3d::fileio)
 
-target_link_libraries(demo
+set (COMMON_LIBRARIES 
 	${X11_LIBRARIES}
 	${CMAKE_THREAD_LIBS_INIT}
 	${OpenCV_LIBS}
 	${EASY3D_LIBRARIES}
 )
 
-#******************* DLL files
-add_custom_command( TARGET demo POST_BUILD    # copy the dll files in the bin directory to the executable directory
-	COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/bin" ${CMAKE_BINARY_DIR}  
-)	
+file(GLOB HDR "${CMAKE_SOURCE_DIR}/include/*.h")
+file(GLOB SRC "${CMAKE_SOURCE_DIR}/src/*.cpp")
+
+add_library(asu
+	${HDR}
+	${SRC}
+)
+
+add_executable(3d_visual
+	${CMAKE_SOURCE_DIR}/example/3d_visual.cpp
+)
+set_target_properties(3d_visual PROPERTIES CXX_STANDARD 17)        # for C++17
+target_link_libraries(3d_visual
+	${COMMON_LIBRARIES}
+	asu
+)
+
+add_executable(pose_estimation
+	${CMAKE_SOURCE_DIR}/example/pose_estimation.cpp
+)
+set_target_properties(pose_estimation PROPERTIES CXX_STANDARD 17)        # for C++17
+target_link_libraries(pose_estimation
+	${COMMON_LIBRARIES}
+	asu
+)
+

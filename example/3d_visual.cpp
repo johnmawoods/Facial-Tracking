@@ -152,7 +152,7 @@ int main() {
 	//					7281, 7284, 7288, 7292, 7385, 8801, 8802, 8814, 8865, 8948, 8972, 8978, 9249, 10297, 10334,
 	//					10453, 10536, 10629, 10682, 10684, 10760, 10820, 10844, 10892 };
 
-	vector<int> all3dVertices = readVertexIdFromFile("../data/lm_vert_internal_73.txt");   // in the same order as landmarks
+	vector<int> all3dVertices = readVertexIdFromFile("../data/lm_vert_internal_73.txt");   // same order as landmarks
 	vector<int> poseIndices = { 27, 31, 35, 39, 54, 55, 61 };
 	vector<int> vk(poseIndices.size());
 	for (int i = 0; i < vk.size(); i++)
