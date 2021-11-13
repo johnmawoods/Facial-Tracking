@@ -135,7 +135,6 @@ vector<int> readVertexIdFromFile(std::string path) {
 	return vk;
 }
 
-
 int main() {
 
 	vector<uint32_t> meshIndices = readMeshTriangleIndicesFromFile("../data/GL/faces.obj");
