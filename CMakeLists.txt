@@ -25,8 +25,6 @@ include_directories(
 )
 
 #******************* executables and linking
-
-
 set(EASY3D_LIBRARIES easy3d::core easy3d::renderer easy3d::viewer easy3d::fileio)
 
 set (COMMON_LIBRARIES 
