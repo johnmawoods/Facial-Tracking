@@ -42,17 +42,29 @@ add_library(asu
 	${SRC}
 )
 
-add_executable(3d_visual
-	${CMAKE_SOURCE_DIR}/example/3d_visual.cpp
+#====================== drawables
+add_executable(drawables
+	${CMAKE_SOURCE_DIR}/examples/drawables.cpp
 )
-set_target_properties(3d_visual PROPERTIES CXX_STANDARD 17)        # for C++17
-target_link_libraries(3d_visual
+set_target_properties(drawables PROPERTIES CXX_STANDARD 17)        # for C++17
+target_link_libraries(drawables
 	${COMMON_LIBRARIES}
 	asu
 )
 
+#====================== easy3d learning
+add_executable(easy3d_learning
+	${CMAKE_SOURCE_DIR}/examples/easy3d_learning.cpp
+)
+set_target_properties(easy3d_learning PROPERTIES CXX_STANDARD 17)        # for C++17
+target_link_libraries(easy3d_learning
+	${COMMON_LIBRARIES}
+	asu
+)
+
+#====================== pose estimation
 add_executable(pose_estimation
-	${CMAKE_SOURCE_DIR}/example/pose_estimation.cpp
+	${CMAKE_SOURCE_DIR}/examples/pose_estimation.cpp
 )
 set_target_properties(pose_estimation PROPERTIES CXX_STANDARD 17)        # for C++17
 target_link_libraries(pose_estimation
