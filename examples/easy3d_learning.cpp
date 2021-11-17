@@ -47,9 +47,9 @@ int main() {
 	//vDrawable->set_uniform_coloring(easy3d::vec4(0.8, 0, 0.0, 1.0));
 	vDrawable->set_impostor_type(easy3d::PointsDrawable::SPHERE);
 	vDrawable->set_point_size(20);
-	cloud->manipulator()->frame()->translate(easy3d::vec3(0, 0, 1));
 	float pi = 3.1415926;
 	cloud->manipulator()->frame()->rotate(easy3d::quat(easy3d::vec3(0, 0, 1), pi / 4.0));    // 45 degrees around z
+	cloud->manipulator()->frame()->translate(easy3d::vec3(0, 0, 1));
 
 	//-------------------------------- rendering
 	//===================================================================================
