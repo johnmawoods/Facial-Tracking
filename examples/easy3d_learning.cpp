@@ -1,9 +1,11 @@
 #include "utility.h"
-#include <easy3d/core/surface_mesh.h>	
+
 #include <easy3d/viewer/viewer.h>
 #include <easy3d/renderer/drawable_lines.h>
 #include <easy3d/renderer/drawable_points.h>
 #include <easy3d/renderer/drawable_triangles.h>
+#include <easy3d/renderer/renderer.h>
+#include <easy3d/renderer/camera.h>
 
 #define NUM_OF_VERTICES	11510
 
@@ -16,7 +18,7 @@ vector<vector<uint32_t>> readQuadIndicesFromFile(const std::string& path) {
 	}
 
 	vector<vector<uint32_t>> quads;
-	quads.reserve(50000);
+	quads.reserve(12000);
 
 	while (true) {
 
@@ -89,15 +91,24 @@ vector<easy3d::vec3> readFace3DFromObj(std::string path) {
 
 
 
+
+
 int main() {
 
 	vector<vector<uint32_t>> quads = readQuadIndicesFromFile("../data/GL/faces.obj");
 	vector<easy3d::vec3> faceVerts = readFace3DFromObj("../data/Tester_103/Blendshape/shape_22.obj");
+	//vector<easy3d::vec3> faceVerts = readFace3DFromObj("../data/pose_16.obj");
 
+	//-------------------------------- viewer
+	//===================================================================================
 	easy3d::Viewer viewer("surface mesh");
+	easy3d::Camera* cam = viewer.camera();       // visualized axes at the bottom left of the screen are red(x), green(y), blue(z) 
+	cam->setUpVector(easy3d::vec3(0, 1, 0));
+	cam->setViewDirection(easy3d::vec3(0, 0, -1));
 
+	//-------------------------------- surface mesh
+	//===================================================================================
 	easy3d::SurfaceMesh* mesh = new easy3d::SurfaceMesh();
-
 	for (int i = 0; i < quads.size(); i++) {
 		easy3d::SurfaceMesh::Vertex v0 = mesh->add_vertex(faceVerts[quads[i][0]]);
 		easy3d::SurfaceMesh::Vertex v1 = mesh->add_vertex(faceVerts[quads[i][1]]);
@@ -105,8 +116,31 @@ int main() {
 		easy3d::SurfaceMesh::Vertex v3 = mesh->add_vertex(faceVerts[quads[i][3]]);
 		mesh->add_quad(v0, v1, v2, v3);
 	}
+	
+	viewer.add_model(mesh);        // the model must first be added to the viewer before accessing the drawables
+	auto surfaceD = mesh->renderer()->get_triangles_drawable("faces");    // the string must be "faces"
+	surfaceD->set_smooth_shading(true);
+	surfaceD->set_uniform_coloring(easy3d::vec4(0.8, 0.8, 0.8, 1.0));
 
-	viewer.add_model(mesh);
+	//-------------------------------- point cloud
+	//===================================================================================
+	easy3d::PointCloud* cloud = new easy3d::PointCloud;
+	for (float i = -2; i <= 2; ++i) {
+		for (float j = -2; j <= 2; ++j)
+			cloud->add_vertex(easy3d::vec3(i, j, 0));// z = 0: all points are on XY plane.
+	}
+	auto colors = cloud->add_vertex_property<easy3d::vec3>("v:color");    // per vertex properties are: color, normal and point
+	for (auto v : cloud->vertices()) 
+		colors[v] = easy3d::random_color();		        // assign a random color to point 'v'
+	
+	viewer.add_model(cloud);
+	auto verticesD = cloud->renderer()->get_points_drawable("vertices");   // the string must be "vertices"
+	//verticesD->set_uniform_coloring(easy3d::vec4(0.8, 0, 0.0, 1.0));
+	verticesD->set_impostor_type(easy3d::PointsDrawable::SPHERE);
+	verticesD->set_point_size(20);
+
+	//-------------------------------- rendering
+	//===================================================================================
 	viewer.fit_screen();
 	viewer.run();
 
