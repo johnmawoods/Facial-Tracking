@@ -54,13 +54,11 @@ int main() {
 	//-------------------------------- surface mesh
 	//===================================================================================
 	easy3d::SurfaceMesh* mesh = new easy3d::SurfaceMesh();
-	for (int i = 0; i < quads.size(); i++) {
-		easy3d::SurfaceMesh::Vertex v0 = mesh->add_vertex(faceVerts[quads[i][0]]);
-		easy3d::SurfaceMesh::Vertex v1 = mesh->add_vertex(faceVerts[quads[i][1]]);
-		easy3d::SurfaceMesh::Vertex v2 = mesh->add_vertex(faceVerts[quads[i][2]]);
-		easy3d::SurfaceMesh::Vertex v3 = mesh->add_vertex(faceVerts[quads[i][3]]);
-		mesh->add_quad(v0, v1, v2, v3);
-	}
+	vector<easy3d::SurfaceMesh::Vertex> surfaceVertices(faceVerts.size());
+	for (int i = 0; i < faceVerts.size(); i++) 
+		surfaceVertices[i] = mesh->add_vertex(faceVerts[i]);
+	for (int i = 0; i < quads.size(); i++) 
+		mesh->add_quad(surfaceVertices[quads[i][0]], surfaceVertices[quads[i][1]], surfaceVertices[quads[i][2]], surfaceVertices[quads[i][3]]);
 	
 	viewer.add_model(mesh);        // the model must first be added to the viewer before accessing the drawables
 	auto sDrawable = mesh->renderer()->get_triangles_drawable("faces");    // the string must be "faces"
