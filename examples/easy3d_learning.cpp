@@ -27,9 +27,9 @@ int main() {
 	}
 	
 	viewer.add_model(mesh);        // the model must first be added to the viewer before accessing the drawables
-	auto surfaceD = mesh->renderer()->get_triangles_drawable("faces");    // the string must be "faces"
-	surfaceD->set_smooth_shading(true);
-	surfaceD->set_uniform_coloring(easy3d::vec4(0.8, 0.8, 0.8, 1.0));
+	auto sDrawable = mesh->renderer()->get_triangles_drawable("faces");    // the string must be "faces"
+	sDrawable->set_smooth_shading(true);
+	sDrawable->set_uniform_coloring(easy3d::vec4(0.8, 0.8, 0.8, 1.0));
 
 	//-------------------------------- point cloud
 	//===================================================================================
@@ -42,11 +42,14 @@ int main() {
 	for (auto v : cloud->vertices()) 
 		colors[v] = easy3d::random_color();		        // assign a random color to point 'v'
 	
-	viewer.add_model(cloud);
-	auto verticesD = cloud->renderer()->get_points_drawable("vertices");   // the string must be "vertices"
-	//verticesD->set_uniform_coloring(easy3d::vec4(0.8, 0, 0.0, 1.0));
-	verticesD->set_impostor_type(easy3d::PointsDrawable::SPHERE);
-	verticesD->set_point_size(20);
+	viewer.add_model(cloud);             // renderer and manipulator are initialized after adding the model, so use them after this line
+	auto vDrawable = cloud->renderer()->get_points_drawable("vertices");   // the string must be "vertices"
+	//vDrawable->set_uniform_coloring(easy3d::vec4(0.8, 0, 0.0, 1.0));
+	vDrawable->set_impostor_type(easy3d::PointsDrawable::SPHERE);
+	vDrawable->set_point_size(20);
+	cloud->manipulator()->frame()->translate(easy3d::vec3(0, 0, 1));
+	float pi = 3.1415926;
+	cloud->manipulator()->frame()->rotate(easy3d::quat(easy3d::vec3(0, 0, 1), pi / 4.0));    // 45 degrees around z
 
 	//-------------------------------- rendering
 	//===================================================================================

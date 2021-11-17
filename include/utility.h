@@ -15,6 +15,9 @@
 #include "easy3d/renderer/drawable_triangles.h"
 #include "easy3d/renderer/renderer.h"
 #include "easy3d/renderer/camera.h"
+#include "easy3d/renderer/manipulated_frame.h"
+#include "easy3d/renderer/manipulator.h"
+#include "easy3d/renderer/frame.h"
 
 #define NUM_OF_VERTICES	11510
 
