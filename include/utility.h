@@ -9,6 +9,15 @@
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/core/core.hpp"
 
+#include "easy3d/viewer/viewer.h"
+#include "easy3d/renderer/drawable_lines.h"
+#include "easy3d/renderer/drawable_points.h"
+#include "easy3d/renderer/drawable_triangles.h"
+#include "easy3d/renderer/renderer.h"
+#include "easy3d/renderer/camera.h"
+
+#define NUM_OF_VERTICES	11510
+
 using std::cout;
 using std::endl;
 using std::vector;
@@ -22,7 +31,9 @@ namespace asu {
 		Utility() {}
 		~Utility() {}
 
-		vector<cv::Point2f> Utility::readLandmarksFromFile(const std::string& path, const cv::Mat& image);
+		vector<cv::Point2f>         readLandmarksFromFile(const std::string& path, const cv::Mat& image);
+		vector<vector<uint32_t>>    readQuadIndicesFromFile(const std::string& path);
+		vector<easy3d::vec3>		readFace3DFromObj(std::string path);
 
 	private:
 

@@ -31,7 +31,6 @@ set (COMMON_LIBRARIES
 	${X11_LIBRARIES}
 	${CMAKE_THREAD_LIBS_INIT}
 	${OpenCV_LIBS}
-	${EASY3D_LIBRARIES}
 )
 
 file(GLOB HDR "${CMAKE_SOURCE_DIR}/include/*.h")
@@ -40,6 +39,9 @@ file(GLOB SRC "${CMAKE_SOURCE_DIR}/src/*.cpp")
 add_library(asu
 	${HDR}
 	${SRC}
+)
+target_link_libraries(asu
+	${EASY3D_LIBRARIES}
 )
 
 #====================== drawables
