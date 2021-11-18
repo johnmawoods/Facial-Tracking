@@ -9,6 +9,7 @@ endif()
 add_definitions(-D_HAS_STD_BYTE=0)             # for C++17
 
 #******************* external packages
+FIND_PACKAGE(Easy3D REQUIRED)
 FIND_PACKAGE(OpenCV REQUIRED)
 FIND_PACKAGE(Threads REQUIRED)
 FIND_PACKAGE(X11)
@@ -27,6 +28,8 @@ include_directories(
 file(GLOB HDR "${CMAKE_SOURCE_DIR}/include/*.h")
 file(GLOB SRC "${CMAKE_SOURCE_DIR}/src/*.cpp")
 
+set(EASY3D_LIBRARIES easy3d::core easy3d::renderer easy3d::viewer easy3d::fileio)
+
 add_executable(project
 	${HDR}
 	${SRC}
@@ -39,6 +42,7 @@ target_link_libraries(project
 	${X11_LIBRARIES}
 	${CMAKE_THREAD_LIBS_INIT}
 	${OpenCV_LIBS}
+	${EASY3D_LIBRARIES}
 )
 
 #******************* DLL files
