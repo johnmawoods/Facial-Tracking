@@ -35,7 +35,7 @@ vector<cv::Point2f> Utility::readLandmarksFromFile(const std::string& path, cons
 	infile.close();
 
 	int nPoints = orderedIndices.size();
-	vector<cv::Point2f> lms(nPoints * 2);
+	vector<cv::Point2f> lms(nPoints);
 	for (int i = 0; i < nPoints; i++) {
 		lms[i].x = origLms[orderedIndices[i]];
 		lms[i].y = origLms[orderedIndices[i] + nOrigPoints];
