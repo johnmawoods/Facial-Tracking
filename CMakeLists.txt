@@ -22,6 +22,8 @@ include_directories(
 	${EIGEN_INCLUDE_DIRS}	
 	${OpenCV_INCLUDE_DIRS}	
 	${ASU_INCLUDE_DIRS}	
+	${CMAKE_SOURCE_DIR}/3rdparty/ceres/include
+	${CMAKE_SOURCE_DIR}/3rdparty/glog/include
 )
 
 #******************* executables and linking
@@ -74,3 +76,14 @@ target_link_libraries(pose_estimation
 	asu
 )
 
+#====================== optimization
+add_executable(optimization
+	${CMAKE_SOURCE_DIR}/examples/optimization.cpp
+)
+set_target_properties(optimization PROPERTIES CXX_STANDARD 17)        # for C++17
+target_link_libraries(optimization
+	${COMMON_LIBRARIES}
+	asu
+	${CMAKE_SOURCE_DIR}/3rdparty/ceres/lib/ceres.lib
+	${CMAKE_SOURCE_DIR}/3rdparty/glog/lib/glog.lib
+)
