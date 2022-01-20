@@ -53,11 +53,11 @@ int main(int argc, char** argv) {
 	
     problem.AddResidualBlock(costFunction, NULL, &w[0]);
 	
-    problem.SetParameterLowerBound(&w[0], 0, 0);  
-    problem.SetParameterUpperBound(&w[0], 0, 4);
+    //problem.SetParameterLowerBound(&w[0], 0, 0);  
+    //problem.SetParameterUpperBound(&w[0], 0, 4);
 	
-    problem.SetParameterLowerBound(&w[0], 1, -5); 
-    problem.SetParameterUpperBound(&w[0], 1, -1);
+    //problem.SetParameterLowerBound(&w[0], 1, -5); 
+    //problem.SetParameterUpperBound(&w[0], 1, -1);
 
     ceres::Solver::Options options;
     options.max_num_iterations = 25;
