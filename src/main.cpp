@@ -32,22 +32,21 @@ int main() {
 
     if (std::filesystem::exists(SHAPE_TENSOR_PATH)) {
         loadShapeTensor(SHAPE_TENSOR_PATH, shapeTensor);
-    }
-    else {
+    } else {
         buildShapeTensor(rawTensor, SHAPE_TENSOR_PATH, shapeTensor);
     }
 
     /** Transform from object coordinates to camera coordinates **/
     // Copy Eigen vector to OpenCV vector
     int n_vectors = 73;
-    std::vector<cv::Point3f> model(n_vectors);
+    std::vector<cv::Point3f> objectVec(n_vectors);
     for (int i = 0; i < n_vectors; ++i) {
-        Eigen::Vector3f eigen_vec = shapeTensor(0, 0, i);
+        Eigen::Vector3f eigen_vec = shapeTensor(102, 22, i);
         cv::Point3f cv_vec;
         cv_vec.x = eigen_vec.x();
         cv_vec.y = eigen_vec.y();
         cv_vec.z = eigen_vec.z();
-        model[i] = cv_vec;
+        objectVec[i] = cv_vec;
     }
 
 
@@ -55,22 +54,8 @@ int main() {
     string img_path = WAREHOUSE_PATH + "Tester_103/TrainingPose/pose_1.png";
     string land_path = WAREHOUSE_PATH + "Tester_103/TrainingPose/pose_1.land";
     cv::Mat image = cv::imread(img_path, 1);
-    //    asu::Utility util;
-    vector<cv::Point2f> lms = readLandmarksFromFile_2(land_path, image);
-
-    vector<int> indices_2d = { 27, 31, 35, 39, 54, 55, 61 };   // 2d landmark indices
-
-    vector<int> indices_3d = { 726, 1263, 3253, 3279, 6767, 8979, 9008 };   // corresponding 3d vertex indices from the shape tensor
-
-    int numEstimationPoints = indices_3d.size();
-    vector<cv::Point2f> lmsVec(numEstimationPoints);
-    vector<cv::Point3f> objectVec(numEstimationPoints);
-    for (int i = 0; i < numEstimationPoints; i++) {
-        lmsVec[i] = lms[indices_2d[i]];
-        objectVec[i] = model[indices_3d[i]];
-    }
-    cout << lmsVec << endl;
-    cout << objectVec << endl;
+//    asu::Utility util;
+    vector<cv::Point2f> lmsVec = readLandmarksFromFile_2(land_path, image);
 
     double f = image.cols;               // ideal camera where fx ~ fy
     double cx = image.cols / 2.0;
@@ -116,14 +101,14 @@ int main() {
 
 
     cv::Mat visualImage = image.clone();
-    double sc = 2;
+    double sc = 1;
     cv::resize(visualImage, visualImage, cv::Size(visualImage.cols * sc, visualImage.rows * sc));
     for (int i = 0; i < imageVec.size(); i++) {
         //cv::circle(visualImage, imageVec[i] * sc, 1, cv::Scalar(0, 255, 0), 1);
 //        cv::putText(visualImage, std::to_string(i), lmsVec[i] * sc, 3, 0.4, cv::Scalar::all(255), 1);
 
         cv::circle(visualImage, imageVec[i] * sc, 1, cv::Scalar(0, 0, 255), sc);             // 3d projections (red)
-        cv::circle(visualImage, lmsVec[i] * sc, 1, cv::Scalar(0, 255, 0), sc);               // 2d landmarks   (green)
+//        cv::circle(visualImage, lmsVec[i] * sc, 1, cv::Scalar(0, 255, 0), sc);               // 2d landmarks   (green)
 
 //        cv::putText(visualImage, std::to_string(i), lmsVec[i] * sc, 3, 0.4, cv::Scalar::all(255), 1);
 
@@ -163,4 +148,3 @@ int main() {
 //    int key = cv::waitKey(0) % 256;
 //    if (key == 27)                        // Esc button is pressed
 //        exit(1);
-
