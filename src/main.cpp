@@ -1,7 +1,13 @@
 #include <iostream>
 #include <filesystem>
+#include <vector>
+#include <random>
+
+#include "ceres/ceres.h"
 
 #include "../include/tensor.h"
+#include "../include/optimization.h"
+
 #include <Eigen/Core>
 #include <Eigen/Dense>
 #include <unsupported/Eigen/CXX11/Tensor>
@@ -36,25 +42,59 @@ int main() {
         buildShapeTensor(rawTensor, SHAPE_TENSOR_PATH, shapeTensor);
     }
 
+    // vector representing 47 expressions
+    // set to neutral expression
+    
+    int numExpressions = 47;
+    Eigen::VectorXf w(numExpressions);
+
+    for (int i = 0; i < numExpressions; i++)
+    {
+        w[i] = 0;
+    }
+    w[0] = 1;
+
     /** Transform from object coordinates to camera coordinates **/
     // Copy Eigen vector to OpenCV vector
     int n_vectors = 73;
-    std::vector<cv::Point3f> objectVec(n_vectors);
-    for (int i = 0; i < n_vectors; ++i) {
-        Eigen::Vector3f eigen_vec = shapeTensor(102, 22, i);
-        cv::Point3f cv_vec;
-        cv_vec.x = eigen_vec.x();
-        cv_vec.y = eigen_vec.y();
-        cv_vec.z = eigen_vec.z();
-        objectVec[i] = cv_vec;
-    }
+  
+   // std::vector<cv::Point3f> objectVec(n_vectors);
+    //for (int i = 0; i < n_vectors; ++i) {
+   //     Eigen::Vector3f eigen_vec = shapeTensor(137, j, i);
+   //     cv::Point3f cv_vec;
+    //    cv_vec.x = eigen_vec.x();
+    //    cv_vec.y = eigen_vec.y();
+    //    cv_vec.z = eigen_vec.z();
+    //    objectVec[i] = cv_vec;
+    //}
+       
+
+
+    Eigen::MatrixXf expM = shapeTensor.slice(137);
+
+  
+    
+    //cv::Mat expressionMatrix(73, 47*3, CV_64F, expressionVec.data());
+    //cv::Mat wdata(47, 1, CV_64F, w.data());
+    //cout << wdata << endl;
+    //cout << expressionMatrix << endl;
+    //expressionMatrix(isanan(expressionMatrix)) = 0;
+    //cv::Mat newMat = expressionMatrix * wdata;
+
+    //cout << newMat << endl;
+
+    //cout << objectVec << endl;
+
+   
+
 
 
     // Image vector contains 2d landmark positions
-    string img_path = WAREHOUSE_PATH + "Tester_103/TrainingPose/pose_1.png";
-    string land_path = WAREHOUSE_PATH + "Tester_103/TrainingPose/pose_1.land";
+    string img_path = WAREHOUSE_PATH + "Tester_138/TrainingPose/pose_0.png";
+    string land_path = WAREHOUSE_PATH + "Tester_138/TrainingPose/pose_0.land";
     cv::Mat image = cv::imread(img_path, 1);
 //    asu::Utility util;
+    // "ground truth 2d landmarks"
     vector<cv::Point2f> lmsVec = readLandmarksFromFile_2(land_path, image);
 
     double f = image.cols;               // ideal camera where fx ~ fy
@@ -76,7 +116,7 @@ int main() {
     cv::Mat T = cv::Mat::eye(4, 4, CV_64F);
     T(cv::Range(0, 3), cv::Range(0, 3)) = R * 1;
     T(cv::Range(0, 3), cv::Range(3, 4)) = tvec * 1;
-    cout << tvec << endl << rvec << endl;
+    //cout << tvec << endl << rvec << endl;
 
     // Transform object
     std::vector<cv::Mat> cameraVec;
@@ -96,7 +136,7 @@ int main() {
 
         imageVec.push_back(result);
     }
-    cout << T << endl << cameraVec[0] << endl;
+    //cout << T << endl << cameraVec[0] << endl;
     cv::projectPoints(objectVec, rvec, tvec, cameraMatrix, cv::Mat(), imageVec);
 
 
@@ -108,7 +148,7 @@ int main() {
 //        cv::putText(visualImage, std::to_string(i), lmsVec[i] * sc, 3, 0.4, cv::Scalar::all(255), 1);
 
         cv::circle(visualImage, imageVec[i] * sc, 1, cv::Scalar(0, 0, 255), sc);             // 3d projections (red)
-//        cv::circle(visualImage, lmsVec[i] * sc, 1, cv::Scalar(0, 255, 0), sc);               // 2d landmarks   (green)
+        cv::circle(visualImage, lmsVec[i] * sc, 1, cv::Scalar(0, 255, 0), sc);               // 2d landmarks   (green)
 
 //        cv::putText(visualImage, std::to_string(i), lmsVec[i] * sc, 3, 0.4, cv::Scalar::all(255), 1);
 
