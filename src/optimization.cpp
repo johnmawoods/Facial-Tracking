@@ -1,10 +1,19 @@
 #include <iostream>
+#include <filesystem>
 #include <vector>
 #include <random>
 
 #include "../include/optimization.h"
 
 #include "ceres/ceres.h"
+#include "ceres/rotation.h"
+
+#include "../include/tensor.h"
+
+#include <Eigen/Core>
+#include <Eigen/Dense>
+#include <unsupported/Eigen/CXX11/Tensor>
+#include <fstream>
 
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
@@ -15,43 +24,122 @@ using std::cout;
 using std::endl;
 using std::vector;
 
+
 struct ReprojectErrorExp {
 
-	ReprojectErrorExp(int numObservations, const vector<cv::Point2f>& x, const vector<cv::Point2f>& y) {
-        _numObservations = numObservations;
-        _x.resize(numObservations);
-        _y.resize(numObservations);
-        std::copy(x.begin(), x.end(), _x.begin());
-        std::copy(y.begin(), y.end(), _y.begin());
-    }
+	ReprojectErrorExp(const std::vector<float>& pose, int numLms, const std::vector<std::vector<cv::Point3f>>& blendshapes, vector<cv::Point2f>& gtLms) {
+		_pose = pose;
+		_numLms = numLms;
+		_blendshapes = blendshapes;
+		_gtLms = gtLms;
+	}
 
-    template <typename T>
-    bool operator()(const T* w, T* residual) const {
+	template <typename T>
+	bool operator()(const T* w, T* residual) const {
+	
+		for (int i = 0; i < _numLms; i++) {
 
-        // 73 true landmarks and 73 estimations
-        // 47 weights representing the 47 expressions
-        for (int i = 0; i < _numObservations; i++)
-            //residual[i] = T(_y[i]) - (w[0] * (T(_x[i]) * T(_x[i])) + (w[1] * T(_x[i])) + w[2]);
 
-        return true;
-    }
+			//============= linear combination
+			T X = T(0);
+			T Y = T(0);
+			T Z = T(0);
+
+			//const Eigen::MatrixXf& vertMat = _blendshapes.rows(3 * i, 3 * i + 2);
+
+			for (int j = 0; j < 47; j++) {
+				X += T(_blendshapes[j][i].x) * w[j];
+				Y += T(_blendshapes[j][i].y) * w[j];
+				Z += T(_blendshapes[j][i].z) * w[j];
+			}
+
+			//================= transforming from object to camera coordinate system 
+			T extrinsicsVec[6];
+			for (int j = 0; j < 6; j++)
+				extrinsicsVec[j] = T(_pose[j]);
+
+			// rotation
+			T vert[3] = { X, Y, Z };
+			T rotatedVert[3];
+			ceres::AngleAxisRotatePoint(extrinsicsVec, vert, rotatedVert);
+
+			// translation
+			rotatedVert[0] += extrinsicsVec[3];
+			rotatedVert[1] += extrinsicsVec[4];
+			rotatedVert[2] += extrinsicsVec[5];
+
+			//================= handling the residual block
+
+			T xp = rotatedVert[0] / rotatedVert[2];          // X_cam / Z_cam
+			T yp = rotatedVert[1] / rotatedVert[2];          // Y_cam / Z_cam
+
+			residual[2 * i] = T(_gtLms[i].x) - xp;    // if you follows the steps above, you can see xp and yp are directly influenced by w, as if   
+			residual[2 * i + 1] = T(_gtLms[i].y) - yp;    // you are optimizing the effect w_exp on xp and yp, and their yielded error.
+		}
+		return true;
+	}
 
 private:
-    int                 _numObservations = 0;
-    vector<cv::Point2f>      _x;
-    vector<cv::Point2f>      _y;
+	std::vector<std::vector<cv::Point3f>>			_blendshapes;
+	std::vector<float>					_pose;
+	int						_numLms;
+	vector<cv::Point2f>     _gtLms;
 };
 
 
-vector<double> optimize(const Eigen::VectorXf& w, const Eigen::VectorXf& lms,
-    const Eigen::VectorXf& pose, const cv::Mat& image, float f)
+bool optimize(const vector<cv::Point2f>& lms,
+    const std::vector<float>& pose, const cv::Mat& image, float f, Eigen::VectorXf& w_exp)
 {
+
+	string WAREHOUSE_PATH = "C:/Users/stefa/Desktop/Capstone/repo/Facial-Tracking/data/FaceWarehouse/";
+	string RAW_TENSOR_PATH = "C:/Users/stefa/Desktop/Capstone/repo/Facial-Tracking/data/raw_tensor.bin";
+	string SHAPE_TENSOR_PATH = "C:/Users/stefa/Desktop/Capstone/repo/Facial-Tracking/data/shape_tensor.bin";
+
+	tensor3 rawTensor(150, 47, 11510);
+	tensor3 shapeTensor(150, 47, 73);
+
+	if (std::filesystem::exists(RAW_TENSOR_PATH)) {
+		loadRawTensor(RAW_TENSOR_PATH, rawTensor);
+	}
+	else {
+		buildRawTensor(WAREHOUSE_PATH, RAW_TENSOR_PATH, rawTensor);
+	}
+
+	if (std::filesystem::exists(SHAPE_TENSOR_PATH)) {
+		loadShapeTensor(SHAPE_TENSOR_PATH, shapeTensor);
+	}
+	else {
+		buildShapeTensor(rawTensor, SHAPE_TENSOR_PATH, shapeTensor);
+	}
+
+
 	int numExpressions = 47;
 	int numLms = lms.size();
 	float cx = image.cols / 2.0;
 	float cy = image.rows / 2.0;
 
-	vector<double> w(numExpressions, 0);        // numExpressions = 47
+	vector<double> w(numExpressions, 0);
+
+	int n_vectors = 73;
+	std::vector<cv::Point3f> singleExp(n_vectors);
+	std::vector<std::vector<cv::Point3f>> multExp(numExpressions);
+	// 47 expressions
+	for (int j = 0; j < numExpressions; j++)
+	{
+		// 73 vertices
+		for (int i = 0; i < 73; i++)
+		{
+			Eigen::Vector3f tens_vec = shapeTensor(137, j, i);
+			cv::Point3f conv_vec;
+			conv_vec.x = tens_vec.x();
+			conv_vec.y = tens_vec.y();
+			conv_vec.z = tens_vec.z();
+			singleExp[i] = conv_vec;
+		}
+		multExp[j] = singleExp;
+	}
+
+     
 	ceres::Problem problem;
 
 	vector<cv::Point2f> gtLms;
@@ -62,10 +150,10 @@ vector<double> optimize(const Eigen::VectorXf& w, const Eigen::VectorXf& lms,
 		gtLms.emplace_back(gtX, gtY);
 	}
 
-	ReprojectErrorExp* repErrFunc = new ReprojectErrorExp(pose, numLms, sparseBlendshapes, gtLms);   // upload the required parameters
+
+	ReprojectErrorExp* repErrFunc = new ReprojectErrorExp(pose, numLms, multExp, gtLms);   // upload the required parameters
 	ceres::CostFunction* optimTerm = new ceres::AutoDiffCostFunction<ReprojectErrorExp, ceres::DYNAMIC, 46>(repErrFunc, numLms * 2);  // times 2 becase we have gtx and gty
 	problem.AddResidualBlock(optimTerm, NULL, &w[0]);
-
 
 	// for (int i = 0; i < _numExpressions - 1; i++) {
 		// problem.SetParameterLowerBound(&w[0], i, 0.0);   // first argument must be w of ZERO and the second is the index of interest
@@ -77,7 +165,7 @@ vector<double> optimize(const Eigen::VectorXf& w, const Eigen::VectorXf& lms,
 	ceres::Solver::Summary summary;
 	ceres::Solve(options, &problem, &summary);
 	cout << summary.BriefReport() << endl << endl;
-	for (int i = 0; i < _numExpressions; i++)
+	for (int i = 0; i < numExpressions; i++)
 		w_exp(i) = w[i];
 
 

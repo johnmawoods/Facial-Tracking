@@ -54,6 +54,7 @@ add_executable(project
 set_target_properties(project PROPERTIES CXX_STANDARD 17)        # for C++17
 target_link_libraries(project
 	${COMMON_LIBRARIES}
+	${EASY3D_LIBRARIES}
 	${CMAKE_SOURCE_DIR}/3rdparty/ceres/lib/ceres.lib
 	${CMAKE_SOURCE_DIR}/3rdparty/glog/lib/glog.lib
 	#asu

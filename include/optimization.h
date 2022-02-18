@@ -16,7 +16,7 @@ using std::endl;
 using std::vector;
 
 
-vector<double> optimize(const Eigen::VectorXf& w, const Eigen::VectorXf& lms,
-    const Eigen::VectorXf& pose, const cv::Mat& image, float f);
+bool optimize(const vector<cv::Point2f>& lms,
+    const std::vector<float>& pose, const cv::Mat& image, float f, Eigen::VectorXf& w_exp);
 
 #endif //OPTIMIZATION_H

@@ -18,6 +18,12 @@
 #include "opencv2/calib3d/calib3d.hpp"
 #include "opencv2/core/core.hpp"
 
+#include <easy3d/viewer/viewer.h>
+#include <easy3d/renderer/drawable_lines.h>
+#include <easy3d/renderer/drawable_points.h>
+#include <easy3d/renderer/drawable_triangles.h>
+#include <easy3d/core/types.h>
+
 string WAREHOUSE_PATH = "C:/Users/stefa/Desktop/Capstone/repo/Facial-Tracking/data/FaceWarehouse/";
 string RAW_TENSOR_PATH = "C:/Users/stefa/Desktop/Capstone/repo/Facial-Tracking/data/raw_tensor.bin";
 string SHAPE_TENSOR_PATH = "C:/Users/stefa/Desktop/Capstone/repo/Facial-Tracking/data/shape_tensor.bin";
@@ -28,7 +34,6 @@ int main() {
     tensor3 rawTensor(150, 47, 11510);
     tensor3 shapeTensor(150, 47, 73);
 
-
     if (std::filesystem::exists(RAW_TENSOR_PATH)) {
         loadRawTensor(RAW_TENSOR_PATH, rawTensor);
     }
@@ -38,62 +43,16 @@ int main() {
 
     if (std::filesystem::exists(SHAPE_TENSOR_PATH)) {
         loadShapeTensor(SHAPE_TENSOR_PATH, shapeTensor);
-    } else {
+    }
+    else {
         buildShapeTensor(rawTensor, SHAPE_TENSOR_PATH, shapeTensor);
     }
 
-    // vector representing 47 expressions
-    // set to neutral expression
-    
-    int numExpressions = 47;
-    Eigen::VectorXf w(numExpressions);
-
-    for (int i = 0; i < numExpressions; i++)
-    {
-        w[i] = 0;
-    }
-    w[0] = 1;
-
-    /** Transform from object coordinates to camera coordinates **/
-    // Copy Eigen vector to OpenCV vector
-    int n_vectors = 73;
-  
-   // std::vector<cv::Point3f> objectVec(n_vectors);
-    //for (int i = 0; i < n_vectors; ++i) {
-   //     Eigen::Vector3f eigen_vec = shapeTensor(137, j, i);
-   //     cv::Point3f cv_vec;
-    //    cv_vec.x = eigen_vec.x();
-    //    cv_vec.y = eigen_vec.y();
-    //    cv_vec.z = eigen_vec.z();
-    //    objectVec[i] = cv_vec;
-    //}
-       
-
-
-    Eigen::MatrixXf expM = shapeTensor.slice(137);
-
-  
-    
-    //cv::Mat expressionMatrix(73, 47*3, CV_64F, expressionVec.data());
-    //cv::Mat wdata(47, 1, CV_64F, w.data());
-    //cout << wdata << endl;
-    //cout << expressionMatrix << endl;
-    //expressionMatrix(isanan(expressionMatrix)) = 0;
-    //cv::Mat newMat = expressionMatrix * wdata;
-
-    //cout << newMat << endl;
-
-    //cout << objectVec << endl;
-
-   
-
-
 
     // Image vector contains 2d landmark positions
-    string img_path = WAREHOUSE_PATH + "Tester_138/TrainingPose/pose_0.png";
-    string land_path = WAREHOUSE_PATH + "Tester_138/TrainingPose/pose_0.land";
+    string img_path = WAREHOUSE_PATH + "Tester_138/TrainingPose/pose_1.png";
+    string land_path = WAREHOUSE_PATH + "Tester_138/TrainingPose/pose_1.land";
     cv::Mat image = cv::imread(img_path, 1);
-//    asu::Utility util;
     // "ground truth 2d landmarks"
     vector<cv::Point2f> lmsVec = readLandmarksFromFile_2(land_path, image);
 
@@ -106,7 +65,82 @@ int main() {
     // Get rotation and translation parameters
     cv::Mat rvec(3, 1, CV_64F);
     cv::Mat tvec(3, 1, CV_64F);
-    cv::solvePnP(objectVec, lmsVec, cameraMatrix, cv::Mat(), rvec, tvec);
+
+
+    // vector representing 47 expressions
+    // set to neutral expression
+
+    int numExpressions = 47;
+    Eigen::VectorXf w(numExpressions);
+
+    for (int i = 0; i < numExpressions; i++)
+    {
+        w[i] = 0;
+    }
+    w[0] = 1;
+
+    /** Transform from object coordinates to camera coordinates **/
+    // Copy Eigen vector to OpenCV vector
+    int n_vectors = 73;
+    std::vector<cv::Point3f> singleExp(n_vectors);
+    std::vector<std::vector<cv::Point3f>> multExp(numExpressions);
+    // 47 expressions
+    for (int j = 0; j < numExpressions; j++)
+    {
+        // 73 vertices
+        for (int i = 0; i < 73; i++)
+        {
+            Eigen::Vector3f tens_vec = shapeTensor(137, j, i);
+            cv::Point3f conv_vec;
+            conv_vec.x = tens_vec.x();
+            conv_vec.y = tens_vec.y();
+            conv_vec.z = tens_vec.z();
+            singleExp[i] = conv_vec;
+        }
+        multExp[j] = singleExp;
+    }
+
+    std::vector<cv::Point3f> combinedExp(n_vectors);
+
+
+    for (int opt = 0; opt < 3; opt++)
+    {
+        // create new face based on weights
+        for (int i = 0; i < 73; i++)
+        {
+            for (int j = 0; j < numExpressions; j++)
+            {
+
+                combinedExp[i].x = combinedExp[i].x + (multExp[j][i].x * w[j]);
+                combinedExp[i].y = combinedExp[i].y + (multExp[j][i].y * w[j]);
+                combinedExp[i].z = combinedExp[i].z + (multExp[j][i].z * w[j]);
+            }
+        }
+
+
+        //pose estimation
+        cv::solvePnP(combinedExp, lmsVec, cameraMatrix, cv::Mat(), rvec, tvec);
+        cv::Mat poseMat;
+
+        cv::hconcat(rvec, tvec, poseMat);
+
+        cv::Mat flat = poseMat.reshape(1, poseMat.total() * poseMat.channels());
+        std::vector<float> poseVec = poseMat.isContinuous() ? flat : flat.clone();
+
+        // optimization
+        optimize(lmsVec, poseVec, image, f, w);
+    }
+
+    for (int i = 0; i < 73; i++)
+    {
+        for (int j = 0; j < numExpressions; j++)
+        {
+
+            combinedExp[i].x = combinedExp[i].x + (multExp[j][i].x * w[j]);
+            combinedExp[i].y = combinedExp[i].y + (multExp[j][i].y * w[j]);
+            combinedExp[i].z = combinedExp[i].z + (multExp[j][i].z * w[j]);
+        }
+    }
 
     // Convert Euler angles to rotation matrix
     cv::Mat R;
@@ -116,11 +150,10 @@ int main() {
     cv::Mat T = cv::Mat::eye(4, 4, CV_64F);
     T(cv::Range(0, 3), cv::Range(0, 3)) = R * 1;
     T(cv::Range(0, 3), cv::Range(3, 4)) = tvec * 1;
-    //cout << tvec << endl << rvec << endl;
 
     // Transform object
     std::vector<cv::Mat> cameraVec;
-    for (auto& vec : objectVec) {
+    for (auto& vec : combinedExp) {
         double data[4] = { vec.x, vec.y, vec.z, 1 };
         cv::Mat vector4d = cv::Mat(4, 1, CV_64F, data);
         cv::Mat result = T * vector4d;
@@ -128,6 +161,7 @@ int main() {
     }
 
     // Project points onto image
+
     std::vector<cv::Point2f> imageVec;
     for (auto& vec : cameraVec) {
         cv::Point2f result;
@@ -137,7 +171,7 @@ int main() {
         imageVec.push_back(result);
     }
     //cout << T << endl << cameraVec[0] << endl;
-    cv::projectPoints(objectVec, rvec, tvec, cameraMatrix, cv::Mat(), imageVec);
+    cv::projectPoints(combinedExp, rvec, tvec, cameraMatrix, cv::Mat(), imageVec);
 
 
     cv::Mat visualImage = image.clone();
@@ -159,6 +193,23 @@ int main() {
         exit(1);
 
     return 0;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 }
