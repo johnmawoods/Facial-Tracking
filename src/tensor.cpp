@@ -142,3 +142,59 @@ vector<cv::Point2f> readLandmarksFromFile_2(const std::string& path, const cv::M
     return lms;
 
 }
+
+vector<uint32_t> readMeshTriangleIndicesFromFile(const std::string& path) {
+
+    FILE* file = fopen(path.c_str(), "r");
+    if (file == NULL) {
+        printf("Impossible to open the file !\n");
+        exit(-1);
+    }
+
+    vector<uint32_t> indices;
+    indices.reserve(50000);
+
+    while (true) {
+
+        char lineHeader[128];
+        int res = fscanf(file, "%s", lineHeader);
+        if (res == EOF)
+            break; // EOF = End Of File. Quit the loop.
+
+        if (strcmp(lineHeader, "f") == 0) {
+
+            unsigned int vertexIndex[4], uvIndex[4], normalIndex[4];
+
+            int matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d %d/%d/%d\n",
+                &vertexIndex[0], &uvIndex[0], &normalIndex[0],
+                &vertexIndex[1], &uvIndex[1], &normalIndex[1],
+                &vertexIndex[2], &uvIndex[2], &normalIndex[2],
+                &vertexIndex[3], &uvIndex[3], &normalIndex[3]
+            );
+
+            for (int i = 0; i < 4; i++) {
+                vertexIndex[i] -= 1;     // obj file indices start from 1
+                uvIndex[i] -= 1;
+                normalIndex[i] -= 1;
+            }
+
+            //====== change from quads to triangle
+            indices.push_back(vertexIndex[0]);
+            indices.push_back(vertexIndex[1]);
+            indices.push_back(vertexIndex[2]);
+            indices.push_back(vertexIndex[2]);
+            indices.push_back(vertexIndex[3]);
+            indices.push_back(vertexIndex[0]);
+
+
+            if (matches != 12) {
+                cout << "ERROR: couldn't read the faces! number of quads didn't match" << endl;
+                exit(-1);
+            }
+
+        }
+
+    }
+
+    return indices;
+}

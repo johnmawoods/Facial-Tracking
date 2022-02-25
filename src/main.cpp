@@ -63,8 +63,8 @@ int main() {
     cv::Mat cameraMatrix = (cv::Mat_<double>(3, 3) << f, 0, cx, 0, f, cy, 0, 0, 1);
 
     // Get rotation and translation parameters
-    cv::Mat rvec(3, 1, CV_64F);
-    cv::Mat tvec(3, 1, CV_64F);
+    cv::Mat rvec = cv::Mat::zeros(3, 1, CV_64F);
+    cv::Mat tvec = cv::Mat::zeros(3, 1, CV_64F);
 
 
     // vector representing 47 expressions
@@ -103,34 +103,8 @@ int main() {
     std::vector<cv::Point3f> combinedExp(n_vectors);
 
 
-    for (int opt = 0; opt < 3; opt++)
-    {
-        // create new face based on weights
-        for (int i = 0; i < 73; i++)
-        {
-            for (int j = 0; j < numExpressions; j++)
-            {
-
-                combinedExp[i].x = combinedExp[i].x + (multExp[j][i].x * w[j]);
-                combinedExp[i].y = combinedExp[i].y + (multExp[j][i].y * w[j]);
-                combinedExp[i].z = combinedExp[i].z + (multExp[j][i].z * w[j]);
-            }
-        }
-
-
-        //pose estimation
-        cv::solvePnP(combinedExp, lmsVec, cameraMatrix, cv::Mat(), rvec, tvec);
-        cv::Mat poseMat;
-
-        cv::hconcat(rvec, tvec, poseMat);
-
-        cv::Mat flat = poseMat.reshape(1, poseMat.total() * poseMat.channels());
-        std::vector<float> poseVec = poseMat.isContinuous() ? flat : flat.clone();
-
-        // optimization
-        optimize(lmsVec, poseVec, image, f, w);
-    }
-
+    
+    // create new face based on weights
     for (int i = 0; i < 73; i++)
     {
         for (int j = 0; j < numExpressions; j++)
@@ -142,52 +116,163 @@ int main() {
         }
     }
 
-    // Convert Euler angles to rotation matrix
-    cv::Mat R;
-    cv::Rodrigues(rvec, R);
 
-    // Combine 3x3 rotation and 3x1 translation into 4x4 transformation matrix
-    cv::Mat T = cv::Mat::eye(4, 4, CV_64F);
-    T(cv::Range(0, 3), cv::Range(0, 3)) = R * 1;
-    T(cv::Range(0, 3), cv::Range(3, 4)) = tvec * 1;
+    //pose estimation
+    cv::solvePnP(combinedExp, lmsVec, cameraMatrix, cv::Mat(), rvec, tvec);
 
-    // Transform object
-    std::vector<cv::Mat> cameraVec;
-    for (auto& vec : combinedExp) {
-        double data[4] = { vec.x, vec.y, vec.z, 1 };
-        cv::Mat vector4d = cv::Mat(4, 1, CV_64F, data);
-        cv::Mat result = T * vector4d;
-        cameraVec.push_back(result);
+    std::vector<float> poseVec(6, 0);
+
+    poseVec[0] = rvec.at<double>(0);
+    poseVec[1] = rvec.at<double>(1);
+    poseVec[2] = rvec.at<double>(2);
+
+    poseVec[3] = tvec.at<double>(0);
+    poseVec[4] = tvec.at<double>(1);
+    poseVec[5] = tvec.at<double>(2);
+
+    // optimization
+    optimize(lmsVec, poseVec, image, f, w);
+
+    
+    
+    int numDenseVerts = 11510;
+    std::vector<cv::Point3f> denseSingleExp(numDenseVerts);
+    std::vector<std::vector<cv::Point3f>> denseMultExp(numExpressions);
+    // 47 expressions
+    for (int j = 0; j < numExpressions; j++)
+    {
+        cout << j << endl;
+        for (int i = 0; i < numDenseVerts; i++)
+        {
+           
+            Eigen::Vector3f tens_vec = rawTensor(137, j, i);
+            cv::Point3f conv_vec;
+            conv_vec.x = tens_vec.x();
+            conv_vec.y = tens_vec.y();
+            conv_vec.z = tens_vec.z();
+            denseSingleExp[i] = conv_vec;
+        }
+        denseMultExp[j] = denseSingleExp;
     }
+    
+    std::vector<cv::Point3f> denseCombinedExp(numDenseVerts);
 
-    // Project points onto image
-
-    std::vector<cv::Point2f> imageVec;
-    for (auto& vec : cameraVec) {
-        cv::Point2f result;
-        result.x = f * vec.at<double>(0, 0) / vec.at<double>(2, 0) + cx;
-        result.y = f * vec.at<double>(1, 0) / vec.at<double>(2, 0) + cy;
-
-        imageVec.push_back(result);
+    for (int i = 0; i < numDenseVerts; i++)
+    {
+        for (int j = 0; j < numExpressions; j++)
+        {
+            denseCombinedExp[i].x = denseCombinedExp[i].x + (denseMultExp[j][i].x * w[j]);
+            denseCombinedExp[i].y = denseCombinedExp[i].y + (denseMultExp[j][i].y * w[j]);
+            denseCombinedExp[i].z = denseCombinedExp[i].z + (denseMultExp[j][i].z * w[j]);
+        }
     }
-    //cout << T << endl << cameraVec[0] << endl;
-    cv::projectPoints(combinedExp, rvec, tvec, cameraMatrix, cv::Mat(), imageVec);
+  
+    vector<uint32_t> meshIndices = readMeshTriangleIndicesFromFile("C:/Users/stefa/Desktop/Capstone/repo/Facial-Tracking/data/face.obj"); //easy3D
+ 
+    vector<easy3d::vec3> faceVerts;
+    faceVerts.reserve(numDenseVerts);
 
+    for (int i = 0; i < numDenseVerts; i++)
+    {
+        float x = denseCombinedExp[i].x;
+        float y = denseCombinedExp[i].y;
+        float z = denseCombinedExp[i].z;
 
-    cv::Mat visualImage = image.clone();
-    double sc = 1;
-    cv::resize(visualImage, visualImage, cv::Size(visualImage.cols * sc, visualImage.rows * sc));
-    for (int i = 0; i < imageVec.size(); i++) {
-        //cv::circle(visualImage, imageVec[i] * sc, 1, cv::Scalar(0, 255, 0), 1);
-//        cv::putText(visualImage, std::to_string(i), lmsVec[i] * sc, 3, 0.4, cv::Scalar::all(255), 1);
-
-        cv::circle(visualImage, imageVec[i] * sc, 1, cv::Scalar(0, 0, 255), sc);             // 3d projections (red)
-        cv::circle(visualImage, lmsVec[i] * sc, 1, cv::Scalar(0, 255, 0), sc);               // 2d landmarks   (green)
-
-//        cv::putText(visualImage, std::to_string(i), lmsVec[i] * sc, 3, 0.4, cv::Scalar::all(255), 1);
-
+        faceVerts.push_back(easy3d::vec3(x, y, z));
     }
-    cv::imshow("visualImage", visualImage);
+    easy3d::logging::initialize();
+
+    //-------------------------------------------------------------
+
+    // Create the default Easy3D viewer.
+    // Note: a viewer must be created before creating any drawables.
+    easy3d::Viewer viewer("3d visualization");
+
+    auto surface = new easy3d::TrianglesDrawable("faces");
+    // Upload the vertex positions of the surface to the GPU.
+    surface->update_vertex_buffer(faceVerts);
+    // Upload the vertex indices of the surface to the GPU.
+    surface->update_element_buffer(meshIndices);
+    // Add the drawable to the viewer
+    viewer.add_drawable(surface);
+
+    //-------------------------------------------------------------
+    // Create a PointsDrawable to visualize the vertices of the "bunny".
+    // Only the vertex positions have to be sent to the GPU for visualization.
+    auto vertices = new easy3d::PointsDrawable("vertices");
+    // Upload the vertex positions to the GPU.
+    vertices->update_vertex_buffer(faceVerts);
+    // Set a color for the vertices (here we want a red color).
+    vertices->set_uniform_coloring(easy3d::vec4(1.0f, 0.0f, 0.0f, 1.0f));  // r, g, b, a
+    // Three options are available for visualizing points:
+    //      - PLAIN: plain points (i.e., each point is a square on the screen);
+    //      - SPHERE: each point is visualized a sphere;
+    //      - SURFEL: each point is visualized an oriented disk.
+    // In this example, let's render the vertices as spheres.
+    vertices->set_impostor_type(easy3d::PointsDrawable::SPHERE);
+    // Set the vertices size (here 10 pixels).
+    vertices->set_point_size(10);
+    // Add the drawable to the viewer
+    viewer.add_drawable(surface);
+    viewer.add_drawable(vertices);
+
+
+    viewer.fit_screen();
+    // Run the viewer
+    viewer.run();
+
+
+
+
+
+    
+
+//    // Convert Euler angles to rotation matrix
+//    cv::Mat R;
+//    cv::Rodrigues(rvec, R);
+//
+//    // Combine 3x3 rotation and 3x1 translation into 4x4 transformation matrix
+//    cv::Mat T = cv::Mat::eye(4, 4, CV_64F);
+//    T(cv::Range(0, 3), cv::Range(0, 3)) = R * 1;
+//    T(cv::Range(0, 3), cv::Range(3, 4)) = tvec * 1;
+//
+//    // Transform object
+//    std::vector<cv::Mat> cameraVec;
+//    for (auto& vec : combinedExp) {
+//        double data[4] = { vec.x, vec.y, vec.z, 1 };
+//        cv::Mat vector4d = cv::Mat(4, 1, CV_64F, data);
+//        cv::Mat result = T * vector4d;
+//        cameraVec.push_back(result);
+//    }
+//
+//    // Project points onto image
+//
+//    std::vector<cv::Point2f> imageVec;
+//    for (auto& vec : cameraVec) {
+//        cv::Point2f result;
+//        result.x = f * vec.at<double>(0, 0) / vec.at<double>(2, 0) + cx;
+//        result.y = f * vec.at<double>(1, 0) / vec.at<double>(2, 0) + cy;
+//
+//        imageVec.push_back(result);
+//    }
+//    //cout << T << endl << cameraVec[0] << endl;
+//    cv::projectPoints(combinedExp, rvec, tvec, cameraMatrix, cv::Mat(), imageVec);
+//
+//
+//    cv::Mat visualImage = image.clone();
+//    double sc = 1;
+//    cv::resize(visualImage, visualImage, cv::Size(visualImage.cols * sc, visualImage.rows * sc));
+//    for (int i = 0; i < imageVec.size(); i++) {
+//        //cv::circle(visualImage, imageVec[i] * sc, 1, cv::Scalar(0, 255, 0), 1);
+////        cv::putText(visualImage, std::to_string(i), lmsVec[i] * sc, 3, 0.4, cv::Scalar::all(255), 1);
+//
+//        cv::circle(visualImage, imageVec[i] * sc, 1, cv::Scalar(0, 0, 255), sc);             // 3d projections (red)
+//        cv::circle(visualImage, lmsVec[i] * sc, 1, cv::Scalar(0, 255, 0), sc);               // 2d landmarks   (green)
+//
+////        cv::putText(visualImage, std::to_string(i), lmsVec[i] * sc, 3, 0.4, cv::Scalar::all(255), 1);
+//
+//    }
+    //cv::imshow("visualImage", visualImage);
     int key = cv::waitKey(0) % 256;
     if (key == 27)                        // Esc button is pressed
         exit(1);
