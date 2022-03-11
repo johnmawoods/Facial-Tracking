@@ -39,20 +39,22 @@ struct ReprojectErrorExp {
 	
 		for (int i = 0; i < _numLms; i++) {
 
-
 			//============= linear combination
 			T X = T(0);
 			T Y = T(0);
 			T Z = T(0);
+			T sum = T(0);
 
-			//const Eigen::MatrixXf& vertMat = _blendshapes.rows(3 * i, 3 * i + 2);
-
-			for (int j = 0; j < 47; j++) {
-				X += T(_blendshapes[j][i].x) * w[j];
-				Y += T(_blendshapes[j][i].y) * w[j];
-				Z += T(_blendshapes[j][i].z) * w[j];
+			for (int j = 0; j < 46; j++) {
+				sum += w[j];
+				X += T(_blendshapes[j + 1][i].x) * w[j];
+				Y += T(_blendshapes[j + 1][i].y) * w[j];
+				Z += T(_blendshapes[j + 1][i].z) * w[j];
 			}
-
+			
+			X += T(_blendshapes[0][i].x) * (T(1) - sum);
+			Y += T(_blendshapes[0][i].y) * (T(1) - sum);
+			Z += T(_blendshapes[0][i].z) * (T(1) - sum);
 			//================= transforming from object to camera coordinate system 
 			T extrinsicsVec[6];
 			for (int j = 0; j < 6; j++)
@@ -141,9 +143,9 @@ bool optimize(const vector<cv::Point2f>& lms,
 	float cx = image.cols / 2.0;
 	float cy = image.rows / 2.0;
 
-	vector<double> w(numExpressions, 0);
+	vector<double> w(numExpressions-1, 0);
 	vector<double> wr(numExpressions, 0);
-	wr[22] = 1;
+	wr[21] = 1;
 
 	int n_vectors = 73;
 	std::vector<cv::Point3f> singleExp(n_vectors);
@@ -177,17 +179,17 @@ bool optimize(const vector<cv::Point2f>& lms,
 
 
 	ReprojectErrorExp* repErrFunc = new ReprojectErrorExp(pose, numLms, multExp, gtLms);   // upload the required parameters
-	ceres::CostFunction* optimTerm = new ceres::AutoDiffCostFunction<ReprojectErrorExp, ceres::DYNAMIC, 47>(repErrFunc, numLms * 2);  // times 2 becase we have gtx and gty
+	ceres::CostFunction* optimTerm = new ceres::AutoDiffCostFunction<ReprojectErrorExp, ceres::DYNAMIC, 46>(repErrFunc, numLms * 2);  // times 2 becase we have gtx and gty
 	problem.AddResidualBlock(optimTerm, NULL, &w[0]);
 
-	// for (int i = 0; i < _numExpressions - 1; i++) {
-		// problem.SetParameterLowerBound(&w[0], i, 0.0);   // first argument must be w of ZERO and the second is the index of interest
-		// problem.SetParameterUpperBound(&w[0], i, 1.0);    // also the boundaries should be set after adding the residual block
-	// }
+	 for (int i = 0; i < numExpressions - 1; i++) {
+		 problem.SetParameterLowerBound(&w[0], i, 0.0);   // first argument must be w of ZERO and the second is the index of interest
+		 problem.SetParameterUpperBound(&w[0], i, 1.0);    // also the boundaries should be set after adding the residual block
+	 }
 
 	float penalty = 1.0;
-	Regularization* regular = new Regularization(47, wr, penalty);
-	optimTerm = new ceres::AutoDiffCostFunction<Regularization, 47, 47>(regular);
+	Regularization* regular = new Regularization(46, wr, penalty);
+	optimTerm = new ceres::AutoDiffCostFunction<Regularization, 46, 46>(regular);
 	problem.AddResidualBlock(optimTerm, NULL, &w[0]);
 
 	ceres::Solver::Options options;
@@ -195,9 +197,14 @@ bool optimize(const vector<cv::Point2f>& lms,
 	ceres::Solver::Summary summary;
 	ceres::Solve(options, &problem, &summary);
 	cout << summary.BriefReport() << endl << endl;
-	for (int i = 0; i < numExpressions; i++)
-		w_exp(i) = w[i];
-
+	float sum = 0;
+	for (int i = 0; i < numExpressions - 1; i++)
+	{
+		w_exp(i + 1) = w[i];
+		sum += w[i];
+	}
+	w_exp(0) = 1 - sum;
+	//w[0] = 1.0 - sum;
 
 	return summary.termination_type == ceres::TerminationType::CONVERGENCE;
 

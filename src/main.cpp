@@ -214,7 +214,7 @@ int main() {
     vertices->set_point_size(10);
     // Add the drawable to the viewer
     viewer.add_drawable(surface);
-    viewer.add_drawable(vertices);
+    //viewer.add_drawable(vertices);
 
 
     viewer.fit_screen();
