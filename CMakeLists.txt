@@ -60,7 +60,7 @@ target_link_libraries(project
 	#asu
 )
 
-#====================== optimization
+#====================== expression optimization
 add_executable(optimization
 	${CMAKE_SOURCE_DIR}/examples/optimization.cpp
 )
