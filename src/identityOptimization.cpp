@@ -43,18 +43,13 @@ struct ReprojectErrorExp {
 			T X = T(0);
 			T Y = T(0);
 			T Z = T(0);
-			T sum = T(0);
 
-			for (int j = 0; j < 46; j++) {
-				sum += w[j];
-				X += T(_blendshapes[j + 1][i].x) * w[j];
-				Y += T(_blendshapes[j + 1][i].y) * w[j];
-				Z += T(_blendshapes[j + 1][i].z) * w[j];
+			for (int j = 0; j < 150; j++) {
+				X += T(_blendshapes[j][i].x) * w[j];
+				Y += T(_blendshapes[j][i].y) * w[j];
+				Z += T(_blendshapes[j][i].z) * w[j];
 			}
 
-			X += T(_blendshapes[0][i].x) * (T(1) - sum);
-			Y += T(_blendshapes[0][i].y) * (T(1) - sum);
-			Z += T(_blendshapes[0][i].z) * (T(1) - sum);
 			//================= transforming from object to camera coordinate system 
 			T extrinsicsVec[6];
 			for (int j = 0; j < 6; j++)
@@ -113,59 +108,20 @@ private:
 
 
 bool identityOptimize(const vector<cv::Point2f>& lms,
-	const std::vector<float>& pose, const cv::Mat& image, float f, Eigen::VectorXf& w_exp)
+	const std::vector<float>& pose, const cv::Mat& image, float f, Eigen::VectorXf& w_exp,
+	const std::vector<std::vector<cv::Point3f>>& multIdn)
 {
 
-	string WAREHOUSE_PATH = "C:/Users/stefa/Desktop/Capstone/repo/Facial-Tracking/data/FaceWarehouse/";
-	string RAW_TENSOR_PATH = "C:/Users/stefa/Desktop/Capstone/repo/Facial-Tracking/data/raw_tensor.bin";
-	string SHAPE_TENSOR_PATH = "C:/Users/stefa/Desktop/Capstone/repo/Facial-Tracking/data/shape_tensor.bin";
-
-	tensor3 rawTensor(150, 47, 11510);
-	tensor3 shapeTensor(150, 47, 73);
-
-	if (std::filesystem::exists(RAW_TENSOR_PATH)) {
-		loadRawTensor(RAW_TENSOR_PATH, rawTensor);
-	}
-	else {
-		buildRawTensor(WAREHOUSE_PATH, RAW_TENSOR_PATH, rawTensor);
-	}
-
-	if (std::filesystem::exists(SHAPE_TENSOR_PATH)) {
-		loadShapeTensor(SHAPE_TENSOR_PATH, shapeTensor);
-	}
-	else {
-		buildShapeTensor(rawTensor, SHAPE_TENSOR_PATH, shapeTensor);
-	}
 
 
-	int numExpressions = 47;
+	int numIdentities = 150;
 	int numLms = lms.size();
 	float cx = image.cols / 2.0;
 	float cy = image.rows / 2.0;
 
-	vector<double> w(numExpressions - 1, 0);
-	vector<double> wr(numExpressions, 0);
-	wr[21] = 1;
-
-	int n_vectors = 73;
-	std::vector<cv::Point3f> singleExp(n_vectors);
-	std::vector<std::vector<cv::Point3f>> multExp(numExpressions);
-	// 47 expressions
-	for (int j = 0; j < numExpressions; j++)
-	{
-		// 73 vertices
-		for (int i = 0; i < 73; i++)
-		{
-			Eigen::Vector3f tens_vec = shapeTensor(137, j, i);
-			cv::Point3f conv_vec;
-			conv_vec.x = tens_vec.x();
-			conv_vec.y = tens_vec.y();
-			conv_vec.z = tens_vec.z();
-			singleExp[i] = conv_vec;
-		}
-		multExp[j] = singleExp;
-	}
-
+	vector<double> w(numIdentities, 0);
+	vector<double> wr(numIdentities, 0);
+	wr[137] = 1;
 
 	ceres::Problem problem;
 
@@ -178,18 +134,18 @@ bool identityOptimize(const vector<cv::Point2f>& lms,
 	}
 
 
-	ReprojectErrorExp* repErrFunc = new ReprojectErrorExp(pose, numLms, multExp, gtLms);   // upload the required parameters
-	ceres::CostFunction* optimTerm = new ceres::AutoDiffCostFunction<ReprojectErrorExp, ceres::DYNAMIC, 46>(repErrFunc, numLms * 2);  // times 2 becase we have gtx and gty
+	ReprojectErrorExp* repErrFunc = new ReprojectErrorExp(pose, numLms, multIdn, gtLms);   // upload the required parameters
+	ceres::CostFunction* optimTerm = new ceres::AutoDiffCostFunction<ReprojectErrorExp, ceres::DYNAMIC, 150>(repErrFunc, numLms * 2);  // times 2 becase we have gtx and gty
 	problem.AddResidualBlock(optimTerm, NULL, &w[0]);
 
-	for (int i = 0; i < numExpressions - 1; i++) {
+	for (int i = 0; i < numIdentities; i++) {
 		problem.SetParameterLowerBound(&w[0], i, 0.0);   // first argument must be w of ZERO and the second is the index of interest
 		problem.SetParameterUpperBound(&w[0], i, 1.0);    // also the boundaries should be set after adding the residual block
 	}
 
 	float penalty = 1.0;
-	Regularization* regular = new Regularization(46, wr, penalty);
-	optimTerm = new ceres::AutoDiffCostFunction<Regularization, 46, 46>(regular);
+	Regularization* regular = new Regularization(150, wr, penalty);
+	optimTerm = new ceres::AutoDiffCostFunction<Regularization, 150, 150>(regular);
 	problem.AddResidualBlock(optimTerm, NULL, &w[0]);
 
 	ceres::Solver::Options options;
@@ -198,14 +154,10 @@ bool identityOptimize(const vector<cv::Point2f>& lms,
 	ceres::Solve(options, &problem, &summary);
 	cout << summary.BriefReport() << endl << endl;
 	float sum = 0;
-	for (int i = 0; i < numExpressions - 1; i++)
+	for (int i = 0; i < numIdentities; i++)
 	{
-		w_exp(i + 1) = w[i];
-		sum += w[i];
+		w_exp(i) = w[i];
 	}
-	w_exp(0) = 1 - sum;
-	//w[0] = 1.0 - sum;
 
 	return summary.termination_type == ceres::TerminationType::CONVERGENCE;
-
 }

@@ -38,7 +38,8 @@ struct ReprojectErrorExp {
 	bool operator()(const T* w, T* residual) const {
 	
 		for (int i = 0; i < _numLms; i++) {
-
+			cout << "t1 i: ";
+			cout << i << endl;
 			//============= linear combination
 			T X = T(0);
 			T Y = T(0);
@@ -46,6 +47,8 @@ struct ReprojectErrorExp {
 			T sum = T(0);
 
 			for (int j = 0; j < 46; j++) {
+				cout << "t2 j: ";
+				cout << j << endl;
 				sum += w[j];
 				X += T(_blendshapes[j + 1][i].x) * w[j];
 				Y += T(_blendshapes[j + 1][i].y) * w[j];
@@ -59,7 +62,9 @@ struct ReprojectErrorExp {
 			T extrinsicsVec[6];
 			for (int j = 0; j < 6; j++)
 				extrinsicsVec[j] = T(_pose[j]);
+				cout << "t3";
 
+			
 			// rotation
 			T vert[3] = { X, Y, Z };
 			T rotatedVert[3];
@@ -113,31 +118,10 @@ private:
 
 
 bool optimize(const vector<cv::Point2f>& lms,
-    const std::vector<float>& pose, const cv::Mat& image, float f, Eigen::VectorXf& w_exp)
+    const std::vector<float>& pose, const cv::Mat& image, float f, Eigen::VectorXf& w_exp, 
+	const std::vector<std::vector<cv::Point3f>>& multExp)
 {
-
-	string WAREHOUSE_PATH = "C:/Users/stefa/Desktop/Capstone/repo/Facial-Tracking/data/FaceWarehouse/";
-	string RAW_TENSOR_PATH = "C:/Users/stefa/Desktop/Capstone/repo/Facial-Tracking/data/raw_tensor.bin";
-	string SHAPE_TENSOR_PATH = "C:/Users/stefa/Desktop/Capstone/repo/Facial-Tracking/data/shape_tensor.bin";
-
-	tensor3 rawTensor(150, 47, 11510);
-	tensor3 shapeTensor(150, 47, 73);
-
-	if (std::filesystem::exists(RAW_TENSOR_PATH)) {
-		loadRawTensor(RAW_TENSOR_PATH, rawTensor);
-	}
-	else {
-		buildRawTensor(WAREHOUSE_PATH, RAW_TENSOR_PATH, rawTensor);
-	}
-
-	if (std::filesystem::exists(SHAPE_TENSOR_PATH)) {
-		loadShapeTensor(SHAPE_TENSOR_PATH, shapeTensor);
-	}
-	else {
-		buildShapeTensor(rawTensor, SHAPE_TENSOR_PATH, shapeTensor);
-	}
-
-
+	cout << "o1" << endl;
 	int numExpressions = 47;
 	int numLms = lms.size();
 	float cx = image.cols / 2.0;
@@ -146,26 +130,6 @@ bool optimize(const vector<cv::Point2f>& lms,
 	vector<double> w(numExpressions-1, 0);
 	vector<double> wr(numExpressions, 0);
 	wr[21] = 1;
-
-	int n_vectors = 73;
-	std::vector<cv::Point3f> singleExp(n_vectors);
-	std::vector<std::vector<cv::Point3f>> multExp(numExpressions);
-	// 47 expressions
-	for (int j = 0; j < numExpressions; j++)
-	{
-		// 73 vertices
-		for (int i = 0; i < 73; i++)
-		{
-			Eigen::Vector3f tens_vec = shapeTensor(137, j, i);
-			cv::Point3f conv_vec;
-			conv_vec.x = tens_vec.x();
-			conv_vec.y = tens_vec.y();
-			conv_vec.z = tens_vec.z();
-			singleExp[i] = conv_vec;
-		}
-		multExp[j] = singleExp;
-	}
-
      
 	ceres::Problem problem;
 
@@ -176,26 +140,28 @@ bool optimize(const vector<cv::Point2f>& lms,
 		float gtY = (lms[i].y - cy) / f;
 		gtLms.emplace_back(gtX, gtY);
 	}
-
-
+	cout << "o2" << endl;
+	cout << "line = " << __LINE__ << endl;
 	ReprojectErrorExp* repErrFunc = new ReprojectErrorExp(pose, numLms, multExp, gtLms);   // upload the required parameters
 	ceres::CostFunction* optimTerm = new ceres::AutoDiffCostFunction<ReprojectErrorExp, ceres::DYNAMIC, 46>(repErrFunc, numLms * 2);  // times 2 becase we have gtx and gty
 	problem.AddResidualBlock(optimTerm, NULL, &w[0]);
-
+	cout << "o3" << endl;
 	 for (int i = 0; i < numExpressions - 1; i++) {
 		 problem.SetParameterLowerBound(&w[0], i, 0.0);   // first argument must be w of ZERO and the second is the index of interest
 		 problem.SetParameterUpperBound(&w[0], i, 1.0);    // also the boundaries should be set after adding the residual block
 	 }
-
+	 cout << "o4" << endl;
 	float penalty = 1.0;
 	Regularization* regular = new Regularization(46, wr, penalty);
 	optimTerm = new ceres::AutoDiffCostFunction<Regularization, 46, 46>(regular);
 	problem.AddResidualBlock(optimTerm, NULL, &w[0]);
-
+	cout << "o5" << endl;
 	ceres::Solver::Options options;
 	options.max_num_iterations = 35;
 	ceres::Solver::Summary summary;
+	cout << "o6" << endl;
 	ceres::Solve(options, &problem, &summary);
+	cout << "o7" << endl;
 	cout << summary.BriefReport() << endl << endl;
 	float sum = 0;
 	for (int i = 0; i < numExpressions - 1; i++)
@@ -205,7 +171,7 @@ bool optimize(const vector<cv::Point2f>& lms,
 	}
 	w_exp(0) = 1 - sum;
 	//w[0] = 1.0 - sum;
-
+	cout << "o8" << endl;
 	return summary.termination_type == ceres::TerminationType::CONVERGENCE;
 
 }
