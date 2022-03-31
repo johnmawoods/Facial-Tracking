@@ -38,8 +38,6 @@ struct ReprojectErrorExp {
 	bool operator()(const T* w, T* residual) const {
 	
 		for (int i = 0; i < _numLms; i++) {
-			cout << "t1 i: ";
-			cout << i << endl;
 			//============= linear combination
 			T X = T(0);
 			T Y = T(0);
@@ -47,8 +45,6 @@ struct ReprojectErrorExp {
 			T sum = T(0);
 
 			for (int j = 0; j < 46; j++) {
-				cout << "t2 j: ";
-				cout << j << endl;
 				sum += w[j];
 				X += T(_blendshapes[j + 1][i].x) * w[j];
 				Y += T(_blendshapes[j + 1][i].y) * w[j];
@@ -58,13 +54,12 @@ struct ReprojectErrorExp {
 			X += T(_blendshapes[0][i].x) * (T(1) - sum);
 			Y += T(_blendshapes[0][i].y) * (T(1) - sum);
 			Z += T(_blendshapes[0][i].z) * (T(1) - sum);
+
 			//================= transforming from object to camera coordinate system 
 			T extrinsicsVec[6];
 			for (int j = 0; j < 6; j++)
 				extrinsicsVec[j] = T(_pose[j]);
-				cout << "t3";
 
-			
 			// rotation
 			T vert[3] = { X, Y, Z };
 			T rotatedVert[3];
@@ -83,6 +78,7 @@ struct ReprojectErrorExp {
 			residual[2 * i] = T(_gtLms[i].x) - xp;    // if you follows the steps above, you can see xp and yp are directly influenced by w, as if   
 			residual[2 * i + 1] = T(_gtLms[i].y) - yp;    // you are optimizing the effect w_exp on xp and yp, and their yielded error.
 		}
+		cout << "line = " << __LINE__ << endl;
 		return true;
 	}
 
@@ -107,6 +103,7 @@ struct Regularization {
 			residual[i] = T(_wr[i]) - w[i];
 			residual[i] *= T(_penalty);
 		}
+		cout << "line = " << __LINE__ << endl;
 		return true;
 	}
 

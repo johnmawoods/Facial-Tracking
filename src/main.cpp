@@ -48,8 +48,8 @@ vector<int> v14 = { 6001,8634,5997,8628,5732,8624,5730,8625,5941,8770,7397,9380,
 
 
 int main() {
-    void createAllExpressions(tensor3 shapeTensor, Eigen::VectorXf identity_w, int n_vectors, std::vector<std::vector<cv::Point3f>>& avgMultExp);
-    void createAllIdentities(tensor3 shapeTensor, Eigen::VectorXf w, int n_vectors, std::vector<std::vector<cv::Point3f>>& allIdnOptExp);
+    void createAllExpressions(tensor3 shapeTensor, Eigen::VectorXf identity_w, int numVerts, std::vector<std::vector<cv::Point3f>>& avgMultExp);
+    void createAllIdentities(tensor3 shapeTensor, Eigen::VectorXf w, int numVerts, std::vector<std::vector<cv::Point3f>>& allIdnOptExp);
     void linearCombination(int numVerts, int numCombinations, std::vector<std::vector<cv::Point3f>> mult, Eigen::VectorXf w, std::vector<cv::Point3f>&linCombo);
     void visualization3D(int numVerts, std::vector<cv::Point3f> linCombo);
     void getPose(std::vector<float>&poseVec, const cv::Mat & rvec, const cv::Mat & tvec);
@@ -78,7 +78,7 @@ int main() {
     /* VARIABLES */
     int numIdentities = 150;
     int numExpressions = 47;
-    int n_vectors = 73;
+    int numShapeVerts = 73;
     int numDenseVerts = 11510;
 
     // Image vector contains 2d landmark positions
@@ -120,29 +120,27 @@ int main() {
 
     /* creates a matrix of all the expressions for the average identity */
     std::vector<std::vector<cv::Point3f>> avgMultExp(numExpressions);
-    createAllExpressions(shapeTensor, identity_w, n_vectors, avgMultExp);
-    std::vector<cv::Point3f> singleFace(n_vectors);
-    for (int i = 0; i < n_vectors; i++)
+    createAllExpressions(shapeTensor, identity_w, numShapeVerts, avgMultExp);
+    std::vector<cv::Point3f> singleFace(numShapeVerts);
+    for (int i = 0; i < numShapeVerts; i++)
     {
         singleFace[i].x = avgMultExp[0][i].x;
         singleFace[i].y = avgMultExp[0][i].y;
         singleFace[i].z = avgMultExp[0][i].z;
+        cout << i << endl;
         cout << singleFace[i] << endl;
     }
-    visualization3D(n_vectors, singleFace);
-    exit(1);
-
+    
     cout << "2" << endl;
 
     /* creates vector of average identity with neutral expression */
     /* we use this for initial pose estimation */
-    std::vector<cv::Point3f> singleIdn(n_vectors);
+    std::vector<cv::Point3f> singleIdn(numShapeVerts);
     std::vector<std::vector<cv::Point3f>> multIdn(numIdentities);
-    // 150 identities
+ 
     for (int j = 0; j < numIdentities; j++)
     {
-        // 73 vertices
-        for (int i = 0; i < 73; i++)
+        for (int i = 0; i < numShapeVerts; i++)
         {
             Eigen::Vector3f tens_vec = shapeTensor(j, 0, i);
             cv::Point3f conv_vec;
@@ -155,9 +153,9 @@ int main() {
     }
 
     // create an average face
-    std::vector<cv::Point3f> combinedIdn(n_vectors);
-    linearCombination(n_vectors, numIdentities, multIdn, identity_w, combinedIdn);
-    
+    std::vector<cv::Point3f> combinedIdn(numShapeVerts);
+    linearCombination(numShapeVerts, numIdentities, multIdn, identity_w, combinedIdn);
+   
     cout << "3" << endl;
     // pose estimation
     // solves rvec and tvec for average face neutral expression
@@ -174,14 +172,17 @@ int main() {
     /* apply optimized expression weights and create a vector of every identity */
     std::vector<std::vector<cv::Point3f>> allIdnOptExp(numIdentities);
     createAllIdentities(shapeTensor, w, 73, allIdnOptExp);
+    linearCombination(numShapeVerts, numIdentities, allIdnOptExp, identity_w, combinedIdn);
+    cv::solvePnP(combinedIdn, lmsVec, cameraMatrix, cv::Mat(), rvec, tvec);
+    getPose(poseVec, rvec, tvec);
     cout << "5" << endl;
 
     /* optimize for identity */
     identityOptimize(lmsVec, poseVec, image, f, identity_w, allIdnOptExp);
     cout << "6" << endl;
     /* create new face based on optimized w_exp and w_idn for pose estimation */
-    createAllExpressions(shapeTensor, identity_w, 73, avgMultExp);
-    linearCombination(n_vectors, numExpressions, avgMultExp, w, combinedIdn);
+    createAllExpressions(shapeTensor, identity_w, numShapeVerts, avgMultExp);
+    linearCombination(numShapeVerts, numExpressions, avgMultExp, w, combinedIdn);
     
     cout << "7" << endl;
     cv::solvePnP(combinedIdn, lmsVec, cameraMatrix, cv::Mat(), rvec, tvec);
@@ -192,6 +193,9 @@ int main() {
     cout << "8" << endl;
     // create new face based on optimized expression weights
     createAllIdentities(shapeTensor, w, 73, allIdnOptExp);
+    linearCombination(numShapeVerts, numIdentities, allIdnOptExp, identity_w, combinedIdn);
+    cv::solvePnP(combinedIdn, lmsVec, cameraMatrix, cv::Mat(), rvec, tvec);
+    getPose(poseVec, rvec, tvec);
     cout << "9" << endl;
     /* optimize for identity */
     identityOptimize(lmsVec, poseVec, image, f, identity_w, allIdnOptExp);
@@ -203,7 +207,7 @@ int main() {
 
     std::vector<cv::Point3f> denseCombinedIdn(numDenseVerts);
     createAllExpressions(shapeTensor, identity_w, numDenseVerts, avgMultExp);
-    cout << "bad func" << endl;
+    cout << "line = " << __LINE__ << endl;
     for (int i = 0; i < numDenseVerts; i++)
     {
         for (int j = 0; j < numExpressions; j++)
@@ -259,13 +263,11 @@ void visualization3D(int numVerts, std::vector<cv::Point3f> linCombo)
 
        faceVerts.push_back(easy3d::vec3(x, y, z));
    }
-
-   vector<easy3d::vec3> contourVerts(allVerts.size());
+   /*vector<easy3d::vec3> contourVerts(allVerts.size());
    for (int i = 0; i < contourVerts.size(); i++)
    {
        contourVerts[i] = faceVerts[allVerts[i]];
-   }
-
+   }*/
     easy3d::logging::initialize();
 
     // Create the default Easy3D viewer.
@@ -278,17 +280,15 @@ void visualization3D(int numVerts, std::vector<cv::Point3f> linCombo)
     viewer.add_drawable(surface);
 
     auto vertices = new easy3d::PointsDrawable("vertices");
-    vertices->update_vertex_buffer(contourVerts);
+    vertices->update_vertex_buffer(faceVerts);
     vertices->set_uniform_coloring(easy3d::vec4(1.0f, 0.0f, 0.0f, 1.0f));  // r, g, b, a
 
     vertices->set_impostor_type(easy3d::PointsDrawable::SPHERE);
     vertices->set_point_size(10);
-    viewer.add_drawable(surface);
     //viewer.add_drawable(vertices);
 
     viewer.fit_screen();
     viewer.run();
-
 }
 
  void linearCombination(int numVerts, int numCombinations, std::vector<std::vector<cv::Point3f>> mult, Eigen::VectorXf w, std::vector<cv::Point3f>& linCombo)
@@ -304,23 +304,21 @@ void visualization3D(int numVerts, std::vector<cv::Point3f> linCombo)
     }
 }
 
-
-
 /* creates a matrix of all the expressions for the given identity weights */
 void createAllExpressions(tensor3 shapeTensor, 
-    Eigen::VectorXf identity_w, int n_vectors, std::vector<std::vector<cv::Point3f>>& avgMultExp) {
+    Eigen::VectorXf identity_w, int numVerts, std::vector<std::vector<cv::Point3f>>& avgMultExp) {
     /* creates a matrix of all the expressions for the average identity */
     int numExpressions = 47;
     int numIdentities = 150;
 
     for (int e = 0; e < numExpressions; e++)
     {
-        std::vector<cv::Point3f> singleIdn(n_vectors);
+        std::vector<cv::Point3f> singleIdn(numVerts);
         std::vector<std::vector<cv::Point3f>> multIdn(numIdentities);
         // 150 identities
         for (int j = 0; j < numIdentities; j++)
         {
-            for (int i = 0; i < n_vectors; i++)
+            for (int i = 0; i < numVerts; i++)
             {
                 Eigen::Vector3f tens_vec = shapeTensor(j, e, i);
                 cv::Point3f conv_vec;
@@ -333,16 +331,8 @@ void createAllExpressions(tensor3 shapeTensor,
         }
 
         // create an average face
-        std::vector<cv::Point3f> combinedIdn(n_vectors);
-        for (int i = 0; i < n_vectors; i++)
-        {
-            for (int j = 0; j < numIdentities; j++)
-            {
-                combinedIdn[i].x = combinedIdn[i].x + (multIdn[j][i].x * identity_w[j]);
-                combinedIdn[i].y = combinedIdn[i].y + (multIdn[j][i].y * identity_w[j]);
-                combinedIdn[i].z = combinedIdn[i].z + (multIdn[j][i].z * identity_w[j]);
-            }
-        }
+        std::vector<cv::Point3f> combinedIdn(numVerts);
+        linearCombination(numVerts, numIdentities, multIdn, identity_w, combinedIdn);
         avgMultExp[e] = combinedIdn;
     }
 }
@@ -350,19 +340,18 @@ void createAllExpressions(tensor3 shapeTensor,
 /* apply optimized expression weights and create a vector of every identity */
 /* vector length is 150 */
 void createAllIdentities(tensor3 shapeTensor, 
-    Eigen::VectorXf w, int n_vectors, std::vector<std::vector<cv::Point3f>>& allIdnOptExp) {
+    Eigen::VectorXf w, int numVerts, std::vector<std::vector<cv::Point3f>>& allIdnOptExp) {
     int numExpressions = 47;
     int numIdentities = 150;
 
     for (int idnNum = 0; idnNum < numIdentities; idnNum++)
     {
-        std::vector<cv::Point3f> singleExp(n_vectors);
+        std::vector<cv::Point3f> singleExp(numVerts);
         std::vector<std::vector<cv::Point3f>> multExp(numExpressions);
         // 47 expressions
         for (int j = 0; j < numExpressions; j++)
         {
-            // 73 vertices
-            for (int i = 0; i < n_vectors; i++)
+            for (int i = 0; i < numVerts; i++)
             {
                 Eigen::Vector3f tens_vec = shapeTensor(idnNum, j, i);
                 cv::Point3f conv_vec;
@@ -374,17 +363,8 @@ void createAllIdentities(tensor3 shapeTensor,
             multExp[j] = singleExp;
         }
 
-        std::vector<cv::Point3f> combinedExp(n_vectors);
-        // create new expression based on the weights
-        for (int i = 0; i < n_vectors; i++)
-        {
-            for (int j = 0; j < numExpressions; j++)
-            {
-                combinedExp[i].x = combinedExp[i].x + (multExp[j][i].x * w[j]);
-                combinedExp[i].y = combinedExp[i].y + (multExp[j][i].y * w[j]);
-                combinedExp[i].z = combinedExp[i].z + (multExp[j][i].z * w[j]);
-            }
-        }
+        std::vector<cv::Point3f> combinedExp(numVerts);
+        linearCombination(numVerts, numExpressions, multExp, w, combinedExp);
         allIdnOptExp[idnNum] = combinedExp;
     }
 }
@@ -398,6 +378,10 @@ void getPose(std::vector<float>& poseVec, const cv::Mat& rvec, const cv::Mat& tv
     poseVec[3] = tvec.at<double>(0);
     poseVec[4] = tvec.at<double>(1);
     poseVec[5] = tvec.at<double>(2);
+    for (auto pose : poseVec)
+    {
+        cout << pose << endl;
+    }
 }
 
 
