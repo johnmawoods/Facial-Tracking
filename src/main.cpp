@@ -48,8 +48,8 @@ vector<int> v14 = { 6001,8634,5997,8628,5732,8624,5730,8625,5941,8770,7397,9380,
 
 
 int main() {
-    void createAllExpressions(tensor3 shapeTensor, Eigen::VectorXf identity_w, int numVerts, std::vector<std::vector<cv::Point3f>>& avgMultExp);
-    void createAllIdentities(tensor3 shapeTensor, Eigen::VectorXf w, int numVerts, std::vector<std::vector<cv::Point3f>>& allIdnOptExp);
+    void createAllExpressions(tensor3 tensor, Eigen::VectorXf identity_w, int numVerts, std::vector<std::vector<cv::Point3f>>& avgMultExp);
+    void createAllIdentities(tensor3 tensor, Eigen::VectorXf w, int numVerts, std::vector<std::vector<cv::Point3f>>& allIdnOptExp);
     void linearCombination(int numVerts, int numCombinations, std::vector<std::vector<cv::Point3f>> mult, Eigen::VectorXf w, std::vector<cv::Point3f>&linCombo);
     void visualization3D(int numVerts, std::vector<cv::Point3f> linCombo);
     void getPose(std::vector<float>&poseVec, const cv::Mat & rvec, const cv::Mat & tvec);
@@ -127,8 +127,6 @@ int main() {
         singleFace[i].x = avgMultExp[0][i].x;
         singleFace[i].y = avgMultExp[0][i].y;
         singleFace[i].z = avgMultExp[0][i].z;
-        cout << i << endl;
-        cout << singleFace[i] << endl;
     }
     
     cout << "2" << endl;
@@ -305,12 +303,11 @@ void visualization3D(int numVerts, std::vector<cv::Point3f> linCombo)
 }
 
 /* creates a matrix of all the expressions for the given identity weights */
-void createAllExpressions(tensor3 shapeTensor, 
+void createAllExpressions(tensor3 tensor, 
     Eigen::VectorXf identity_w, int numVerts, std::vector<std::vector<cv::Point3f>>& avgMultExp) {
     /* creates a matrix of all the expressions for the average identity */
     int numExpressions = 47;
     int numIdentities = 150;
-
     for (int e = 0; e < numExpressions; e++)
     {
         std::vector<cv::Point3f> singleIdn(numVerts);
@@ -320,7 +317,7 @@ void createAllExpressions(tensor3 shapeTensor,
         {
             for (int i = 0; i < numVerts; i++)
             {
-                Eigen::Vector3f tens_vec = shapeTensor(j, e, i);
+                Eigen::Vector3f tens_vec = tensor(j, e, i);
                 cv::Point3f conv_vec;
                 conv_vec.x = tens_vec.x();
                 conv_vec.y = tens_vec.y();
@@ -329,7 +326,6 @@ void createAllExpressions(tensor3 shapeTensor,
             }
             multIdn[j] = singleIdn;
         }
-
         // create an average face
         std::vector<cv::Point3f> combinedIdn(numVerts);
         linearCombination(numVerts, numIdentities, multIdn, identity_w, combinedIdn);
@@ -339,7 +335,7 @@ void createAllExpressions(tensor3 shapeTensor,
 
 /* apply optimized expression weights and create a vector of every identity */
 /* vector length is 150 */
-void createAllIdentities(tensor3 shapeTensor, 
+void createAllIdentities(tensor3 tensor, 
     Eigen::VectorXf w, int numVerts, std::vector<std::vector<cv::Point3f>>& allIdnOptExp) {
     int numExpressions = 47;
     int numIdentities = 150;
@@ -353,7 +349,7 @@ void createAllIdentities(tensor3 shapeTensor,
         {
             for (int i = 0; i < numVerts; i++)
             {
-                Eigen::Vector3f tens_vec = shapeTensor(idnNum, j, i);
+                Eigen::Vector3f tens_vec = tensor(idnNum, j, i);
                 cv::Point3f conv_vec;
                 conv_vec.x = tens_vec.x();
                 conv_vec.y = tens_vec.y();
